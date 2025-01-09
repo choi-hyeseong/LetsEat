@@ -10,6 +10,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // kakao map
+        maven { url "https://devrepo.kakao.com/nexus/repository/kakaomap-releases/" }
     }
 }
 rootProject.name = "LetsEat"
