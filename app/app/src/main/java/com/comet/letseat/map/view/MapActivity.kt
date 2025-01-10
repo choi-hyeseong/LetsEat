@@ -4,42 +4,87 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.comet.letseat.BuildConfig
+import com.comet.letseat.R
 import com.comet.letseat.TAG
 import com.comet.letseat.databinding.LayoutMapBinding
+import com.comet.letseat.map.gps.dao.LocationDao
+import com.comet.letseat.map.gps.repository.NetworkLocationRepository
+import com.comet.letseat.map.gps.usecase.GetLocationUseCase
+import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
+import com.comet.letseat.notifyMessage
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.KakaoMapSdk
 import com.kakao.vectormap.MapLifeCycleCallback
+import com.kakao.vectormap.camera.CameraUpdateFactory
 
 class MapActivity : AppCompatActivity() {
 
+    private var kakaoMap: KakaoMap? = null
+
+    // TODO hilt
+    private val viewModel: MapViewModel by lazy {
+        val gpsDao = LocationDao(this)
+        val locationRepository = NetworkLocationRepository(gpsDao)
+        MapViewModel(GpsEnabledUseCase(locationRepository), GetLocationUseCase(locationRepository))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 카카오 sdk 초기화
         KakaoMapSdk.init(this, BuildConfig.API_KEY)
 
-        val view : LayoutMapBinding = LayoutMapBinding.inflate(layoutInflater)
+        // 뷰 초기화
+        val view: LayoutMapBinding = LayoutMapBinding.inflate(layoutInflater)
         setContentView(view.root)
 
         initMapView(view)
+        // TODO GPS BUTTON
+        initObserver()
     }
 
-    private fun initMapView(bind : LayoutMapBinding) {
-        val mapLifeCycleCallback : MapLifeCycleCallback = object : MapLifeCycleCallback() {
+    // 맵뷰 초기화
+    private fun initMapView(bind: LayoutMapBinding) {
+        val mapLifeCycleCallback: MapLifeCycleCallback = object : MapLifeCycleCallback() {
             override fun onMapDestroy() {
-                TODO("Not yet implemented")
+                // 맵 destory시 (onDestory 호출시 등등)
+                kakaoMap = null
             }
 
             override fun onMapError(e: Exception) {
+                // 맵 로드 실패시 - sdk error등
                 Log.w(TAG, "Encountered Map Load Error", e)
+                notifyMessage(R.string.map_load_error)
+                kakaoMap = null
             }
 
         }
-        val mapReadyCallback : KakaoMapReadyCallback = object : KakaoMapReadyCallback() {
-            override fun onMapReady(p0: KakaoMap) {
+        val mapReadyCallback: KakaoMapReadyCallback = object : KakaoMapReadyCallback() {
+            override fun onMapReady(map: KakaoMap) {
+                // 맵이 정상적으로 로드시
                 Log.i(TAG, "Map loads complete.")
+                kakaoMap = map
+                // vm에서 gps 로드 요청
+                viewModel.loadLocation()
             }
 
         }
         bind.kakaoMap.start(mapLifeCycleCallback, mapReadyCallback)
+    }
+
+    private fun initObserver() {
+        viewModel.locationLiveData.observe(this) { location ->
+            // 카카오맵이 로드되지 않은경우는 리턴
+            if (kakaoMap == null) {
+                notifyMessage(R.string.kakao_map_not_loaded)
+                return@observe
+            }
+            val update = CameraUpdateFactory.newCenterPosition(location.toLatlng())
+            kakaoMap?.moveCamera(update)
+        }
+
+        viewModel.gpsResponseErrorLiveData.observe(this) { event ->
+            // TODO GPS ERROR
+        }
     }
 }
