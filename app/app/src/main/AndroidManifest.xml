@@ -24,6 +24,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".map.view.MapActivity" android:exported="true"/>
+
         <!-- API KEY Defined in local.properties -->
         <meta-data
             android:name="com.kakao.vectormap.APP_KEY"
