@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- 버튼 클릭시 변화할 drawable -->
+    <item android:state_pressed="true">
+        <shape android:shape="oval">
+            <solid android:color="#D5D5D5"/>
+        </shape>
+    </item>
+
+    <!-- 평상시 모습 -->
+    <item>
+        <shape android:shape="oval">
+            <solid
+                android:color="#FFFFFF"/>
+        </shape>
+    </item>
+
+</selector>
+
