@@ -28,4 +28,8 @@ class PreferenceUserRepository(private val localStorage: LocalStorage) : UserRep
     override suspend fun saveUser(user: UserData) {
         localStorage.putString(UUID_KEY, user.uuid.toString())
     }
+
+    override suspend fun delete() {
+        localStorage.delete(UUID_KEY)
+    }
 }

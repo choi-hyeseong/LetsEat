@@ -23,4 +23,9 @@ interface UserRepository {
      * @param user 저장할 유저 정보입니다.
      */
     suspend fun saveUser(user : UserData)
+
+    /**
+     * 유저 정보를 삭제합니다.
+     */
+    suspend fun delete()
 }

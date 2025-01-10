@@ -10,10 +10,13 @@ import io.mockk.unmockkAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
-import java.lang.IllegalStateException
 import java.util.UUID
 
 class PreferenceUserRepositoryTest {
@@ -90,5 +93,16 @@ class PreferenceUserRepositoryTest {
     fun testLoadUserFailure() = runTest {
         coEvery { localStorage.getString(KEY, any()) } returns ""
         assertThrows(IllegalStateException::class.java) { runBlocking { repository.loadUser() } }
+    }
+
+    // 유저 정보 삭제
+    @Test
+    fun testDeleteUser() = runTest {
+        val keyCapture : CapturingSlot<String> = CapturingSlot() // 삭제 키 캡처
+        coEvery { localStorage.delete(capture(keyCapture)) } returns mockk() //삭제 캡처
+
+        repository.delete()
+        coVerify(atLeast = 1) { localStorage.delete(any()) } //호출하는지 확인
+        assertEquals(KEY, keyCapture.captured)
     }
 }
