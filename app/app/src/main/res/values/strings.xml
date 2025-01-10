@@ -3,4 +3,10 @@
     <string name="which_eat">뭐 먹지?</string>
     <string name="bottom_sheet_behavior">com.google.android.material.bottomsheet.BottomSheetBehavior</string>
     <string name="empty_data">현재 검색된 데이터가 없습니다.</string>
+    <string name="require_gps_permission">해당 앱을 사용하기 위해선 GPS 권한이 필요합니다.</string>
+    <string name="plz_enable_gps">GPS 권한이 허용되지 않았습니다. 앱을 종료합니다.</string>
+    <string name="ok">확인</string>
+    <string name="close">닫기</string>
+    <string name="map_load_error">맵 로딩중 오류가 발생했습니다. 앱을 재 시동해주세요.</string>
+    <string name="kakao_map_not_loaded">카카오맵이 로드되지 않았습니다. 다시 시도해주세요.</string>
 </resources>
