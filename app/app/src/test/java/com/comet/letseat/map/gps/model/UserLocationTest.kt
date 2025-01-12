@@ -25,4 +25,14 @@ class UserLocationTest {
         assertEquals(longitude, result.longitude)
     }
 
+    // UserLocation을 KakaoMap LatLng으로 바꾸는 메소드 테스트
+    @Test
+    fun testConvertUserLocationToLatLng() {
+        val location : UserLocation = UserLocation(15.0, 17.0)
+        val result = location.toLatlng()
+
+        assertEquals(location.latitude, result.latitude)
+        assertEquals(location.longitude, result.longitude)
+    }
+
 }
