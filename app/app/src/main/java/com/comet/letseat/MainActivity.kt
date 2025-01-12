@@ -29,6 +29,10 @@ class MainActivity : AppCompatActivity() {
             init()
             return
         }
+        requestPermission()
+    }
+
+    private fun requestPermission() {
         // 펄미션 요청
         notifyMessage(R.string.require_gps_permission)
         PermissionX.init(this)
@@ -37,7 +41,7 @@ class MainActivity : AppCompatActivity() {
                 // 사용자에게 요청 이유 설명
                 scope.showRequestReasonDialog(perms, getString(R.string.require_gps_permission), getString(R.string.ok), getString(R.string.close))
             }
-                // 요청
+            // 요청
             .request { allGranted, _, _ ->
                 if (allGranted)
                     init()

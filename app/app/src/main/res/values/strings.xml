@@ -9,4 +9,5 @@
     <string name="close">닫기</string>
     <string name="map_load_error">맵 로딩중 오류가 발생했습니다. 앱을 재 시동해주세요.</string>
     <string name="kakao_map_not_loaded">카카오맵이 로드되지 않았습니다. 다시 시도해주세요.</string>
+    <string name="can_not_display_current_location">현재 위치를 표시할 수 없습니다. 잠시 후 다시 시도해주세요.</string>
 </resources>

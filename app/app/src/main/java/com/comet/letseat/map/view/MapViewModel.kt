@@ -5,9 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.comet.letseat.common.livedata.Event
 import com.comet.letseat.map.gps.model.UserLocation
-import com.comet.letseat.map.gps.type.GPSErrorType
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
+import com.comet.letseat.map.view.type.GPSErrorType
 
 // 지도 클래스를 관리하는 VM
 class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase, private val getLocationUseCase: GetLocationUseCase) : ViewModel() {

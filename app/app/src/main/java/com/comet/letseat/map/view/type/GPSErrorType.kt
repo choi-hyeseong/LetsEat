@@ -1,4 +1,4 @@
-package com.comet.letseat.map.gps.type
+package com.comet.letseat.map.view.type
 
 /**
  * GPS 데이터 로드 실패시 뷰에게 알려줄 type
