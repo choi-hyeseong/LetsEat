@@ -68,7 +68,7 @@ class ChooseDialog(val viewModel: MapViewModel) : AbstractDialog<DialogChooseBin
 
     override fun onResume() {
         super.onResume()
-        resize(1f, 0.9f)
+        resize(0.9f, 0.9f)
     }
 
     // 선택지를 위한 리사이클러뷰

@@ -1,11 +1,14 @@
 package com.comet.letseat.common.dialog
 
+import android.graphics.Color
 import android.graphics.Point
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.WindowManager
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.DialogFragment
@@ -19,6 +22,11 @@ abstract class AbstractDialog<T : ViewBinding> : DialogFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val bind = provideBinding(inflater, container, savedInstanceState)
+        // 둥근 모서리 설정
+        dialog?.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            requestFeature(Window.FEATURE_NO_TITLE)
+        }
         initView(bind)
         return bind.root
     }

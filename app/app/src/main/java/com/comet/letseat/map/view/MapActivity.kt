@@ -70,6 +70,7 @@ class MapActivity : AppCompatActivity() {
         bind.search.setThrottleClickListener {
             // 검색 다이얼로그 호출
             ChooseDialog(viewModel).show(supportFragmentManager, "ChooseDialog")
+
         }
     }
 
