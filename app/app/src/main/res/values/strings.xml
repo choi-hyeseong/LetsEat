@@ -25,4 +25,7 @@
     <string name="eat_something">밥 묵기</string>
     <string name="add">추가</string>
     <string name="which_type_want">어떤 느낌의 음식을 원하세요?</string>
+    <string name="validation_error">검증 과정에서 문제가 발생했습니다.</string>
+    <string name="validation_empty">입력란이 비어있습니다.</string>
+    <string name="validation_too_long">카테고리가 너무 깁니다. 짧게 작성해주세요.</string>
 </resources>
