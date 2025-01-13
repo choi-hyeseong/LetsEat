@@ -28,6 +28,8 @@
         </activity>
 
         <activity android:name=".map.view.MapActivity" android:exported="true"/>
+        <!-- 설정 액티비티 -->
+        <activity android:name=".user.setting.SettingActivity" android:parentActivityName=".map.view.MapActivity" android:exported="true"/>
 
         <!-- API KEY Defined in local.properties -->
         <meta-data

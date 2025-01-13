@@ -74,7 +74,12 @@ fun Activity.startActivityWithBackstackClear(targetClass: Class<*>) {
 
 // activity 전용 사용자에게 notify하는 확장함수 - toast
 fun Activity.notifyMessage(resId: Int) {
-    Toast.makeText(this, resId, Toast.LENGTH_LONG).show()
+    notifyMessage(getString(resId))
+}
+
+// string 형식의 파라미터를 받는 notify message
+fun Activity.notifyMessage(message: String) {
+    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 }
 
 

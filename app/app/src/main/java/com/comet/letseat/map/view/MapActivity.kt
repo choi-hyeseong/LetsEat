@@ -1,5 +1,6 @@
 package com.comet.letseat.map.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +13,9 @@ import com.comet.letseat.map.gps.dao.LocationDao
 import com.comet.letseat.map.gps.repository.NetworkLocationRepository
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
+import com.comet.letseat.map.view.type.GPSErrorType
 import com.comet.letseat.notifyMessage
+import com.comet.letseat.user.setting.SettingActivity
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.KakaoMapSdk
@@ -50,12 +53,16 @@ class MapActivity : AppCompatActivity() {
 
     // 맵뷰 초기화
     private fun initView(bind: LayoutMapBinding) {
-
         bind.kakaoMap.start(KakaoMapErrorCallback(), MapLoadCallback()) // kakao map 초기화
 
         // 쓰로틀링된 클릭 리스너
         bind.gpsButton.setThrottleClickListener(500L) {
             viewModel.loadLocation() // 위치 요청
+        }
+
+        bind.settingButton.setThrottleClickListener {
+            // 설정 액티비티로 이동 - 백스택 유지
+            startActivity(Intent(this, SettingActivity::class.java))
         }
     }
 
@@ -96,7 +103,14 @@ class MapActivity : AppCompatActivity() {
         }
 
         viewModel.gpsResponseErrorLiveData.observe(this) { event ->
-            // TODO GPS ERROR
+            // 이벤트가 처리되지 않은경우 (1회성)
+            event.getContent()?.let {
+                when(it) {
+                    GPSErrorType.NOT_ENABLED -> notifyMessage(R.string.gps_not_enabled)
+                    GPSErrorType.LOAD_FAIL -> notifyMessage(R.string.gps_load_failed)
+                    GPSErrorType.INTERNAL -> notifyMessage(R.string.gps_internal_error)
+                }
+            }
         }
     }
 

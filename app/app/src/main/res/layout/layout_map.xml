@@ -82,6 +82,7 @@
                 app:layout_constraintGuide_percent="0.05" />
 
             <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/setting_button"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_margin="16dp"

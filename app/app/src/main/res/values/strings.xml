@@ -10,4 +10,13 @@
     <string name="map_load_error">맵 로딩중 오류가 발생했습니다. 앱을 재 시동해주세요.</string>
     <string name="kakao_map_not_loaded">카카오맵이 로드되지 않았습니다. 다시 시도해주세요.</string>
     <string name="can_not_display_current_location">현재 위치를 표시할 수 없습니다. 잠시 후 다시 시도해주세요.</string>
+    <string name="gps_not_enabled">네트워크가 꺼져있습니다. 네트워크가 켜져있어야 서비스를 사용할 수 있습니다.</string>
+    <string name="gps_load_failed">GPS 위치를 가져올 수 없습니다. 다시 시도해주세요.</string>
+    <string name="gps_internal_error">GPS 위치를 가져오던 중 오류가 발생했습니다. GPS 권한이 허용되어 있으신가요?</string>
+
+    <string name="setting">설정</string>
+    <string name="delete_user_setting">사용자 데이터 삭제</string>
+    <string name="delete_user_setting_detail">사용자의 검색 이력 및 기록을 삭제합니다.</string>
+    <string name="ai_history">AI 메뉴 추천 이력</string>
+    <string name="ai_history_detail">AI의 메뉴 추천 이력을 확인합니다.</string>
 </resources>
