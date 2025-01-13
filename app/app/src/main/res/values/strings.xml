@@ -32,4 +32,14 @@
     <string name="ai_thinking_hard">AI가 열심히 생각중..</string>
     <string name="ai_load_fail">AI가 메뉴를 찾지 못햇어요..</string>
     <string name="repeat_again_later">다시 시도해주세요 ㅠㅠ</string>
+
+    <string name="ai_find_menu">AI가 메뉴를 찾아냈어요!</string>
+    <string name="choose_one_of_them">다음 메뉴중 하나를 선택해주세요!</string>
+    <string name="list_menu">음식 목록</string>
+    <string name="search_restaurant">가게 검색하기</string>
+
+    <string name="selection_empty">선택한 항목이 없습니다. 항목을 선택해주세요.</string>
+    <string name="selection_too_many">선택한 항목이 너무 많습니다. 카테고리를 줄여주세요.</string>
+    <string name="select_only_one">한개만 선택해주세요.</string>
+
 </resources>

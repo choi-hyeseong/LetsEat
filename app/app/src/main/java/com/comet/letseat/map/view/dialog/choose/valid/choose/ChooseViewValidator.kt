@@ -1,4 +1,4 @@
-package com.comet.letseat.map.view.dialog.valid.choose
+package com.comet.letseat.map.view.dialog.choose.valid.choose
 
 import android.content.Context
 import com.comet.letseat.R
@@ -30,8 +30,8 @@ class ChooseViewValidator(private val chooseInputValidator: ChooseInputValidator
         }
 
         when (error.first().error) {
-            ChooseValidError.EMPTY -> editText.error = context.getString(R.string.validation_empty)
-            ChooseValidError.LONG -> editText.error = context.getString(R.string.validation_too_long)
+            ChooseValidErrorType.EMPTY -> editText.error = context.getString(R.string.validation_empty)
+            ChooseValidErrorType.LONG -> editText.error = context.getString(R.string.validation_too_long)
         }
         return false
 

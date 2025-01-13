@@ -13,8 +13,7 @@ import com.comet.letseat.map.gps.dao.LocationDao
 import com.comet.letseat.map.gps.repository.NetworkLocationRepository
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
-import com.comet.letseat.map.view.dialog.ChooseDialog
-import com.comet.letseat.map.view.dialog.valid.choose.ChooseInputValidator
+import com.comet.letseat.map.view.dialog.result.ResultDialog
 import com.comet.letseat.map.view.type.GPSErrorType
 import com.comet.letseat.notifyMessage
 import com.comet.letseat.user.setting.SettingActivity
@@ -37,7 +36,7 @@ class MapActivity : AppCompatActivity() {
     private val viewModel: MapViewModel by lazy {
         val gpsDao = LocationDao(this)
         val locationRepository = NetworkLocationRepository(gpsDao)
-        MapViewModel(GpsEnabledUseCase(locationRepository), GetLocationUseCase(locationRepository), ChooseInputValidator())
+        MapViewModel(GpsEnabledUseCase(locationRepository), GetLocationUseCase(locationRepository))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +68,7 @@ class MapActivity : AppCompatActivity() {
 
         bind.search.setThrottleClickListener {
             // 검색 다이얼로그 호출
-            ChooseDialog(viewModel).show(supportFragmentManager, "ChooseDialog")
+            ResultDialog(viewModel).show(supportFragmentManager, "ChooseDialog")
 
         }
     }

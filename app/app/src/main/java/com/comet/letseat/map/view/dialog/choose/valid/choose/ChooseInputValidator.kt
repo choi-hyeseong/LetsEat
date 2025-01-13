@@ -1,4 +1,4 @@
-package com.comet.letseat.map.view.dialog.valid.choose
+package com.comet.letseat.map.view.dialog.choose.valid.choose
 
 import com.comet.letseat.common.view.valid.ValidationError
 import com.comet.letseat.common.view.valid.ValidationResult
@@ -13,15 +13,15 @@ class ChooseInputValidator {
      * @param input 사용자의 입력값입니다.
      * @return 검증 결과를 반환합니다.
      */
-    fun valid(input : String) : ValidationResult<ChooseValidError> {
-        val errors : MutableList<ValidationError<ChooseValidError>> = mutableListOf()
+    fun valid(input : String) : ValidationResult<ChooseValidErrorType> {
+        val errors : MutableList<ValidationError<ChooseValidErrorType>> = mutableListOf()
         // 입력값이 공백인경우
         if (input.isEmpty())
-            errors.add(ValidationError("input", ChooseValidError.EMPTY))
+            errors.add(ValidationError("input", ChooseValidErrorType.EMPTY))
 
         // 입력값이 긴 경우
         if (input.length >= 10)
-            errors.add(ValidationError("input", ChooseValidError.LONG))
+            errors.add(ValidationError("input", ChooseValidErrorType.LONG))
         return ValidationResult(errors.isEmpty(), errors)
     }
 }

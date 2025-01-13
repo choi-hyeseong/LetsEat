@@ -1,7 +1,7 @@
 package com.comet.letseat.map.view.dialog.choose.valid
 
-import com.comet.letseat.map.view.dialog.valid.choose.ChooseInputValidator
-import com.comet.letseat.map.view.dialog.valid.choose.ChooseValidError
+import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseInputValidator
+import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseValidErrorType
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -45,7 +45,7 @@ class ChooseInputValidatorTest {
 
         val error = result.error.first()
         assertEquals("input", error.fieldName) // 에러 필드명
-        assertEquals(ChooseValidError.EMPTY, error.error) // 에러 값
+        assertEquals(ChooseValidErrorType.EMPTY, error.error) // 에러 값
     }
 
 
@@ -59,6 +59,6 @@ class ChooseInputValidatorTest {
 
         val error = result.error.first()
         assertEquals("input", error.fieldName) // 에러 필드명
-        assertEquals(ChooseValidError.LONG, error.error) // 에러 값
+        assertEquals(ChooseValidErrorType.LONG, error.error) // 에러 값
     }
 }
