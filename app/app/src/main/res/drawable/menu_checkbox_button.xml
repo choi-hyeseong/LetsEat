@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 클릭시 -->
+    <item android:state_checked="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/light_purple" />
+            <stroke android:width="2dp" android:color="@color/light_purple" />
+            <corners
+                android:topLeftRadius="8dp"
+                android:topRightRadius="8dp"
+                android:bottomLeftRadius="8dp"
+                android:bottomRightRadius="8dp" />
+        </shape>
+    </item>
+
+    <!--일반 상태-->
+    <item android:state_checked="false">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" />
+            <stroke android:width="2dp" android:color="@color/gray" />
+            <corners
+                android:topLeftRadius="8dp"
+                android:topRightRadius="8dp"
+                android:bottomLeftRadius="8dp"
+                android:bottomRightRadius="8dp" />
+        </shape>
+    </item>
+
+</selector>

@@ -12,6 +12,12 @@ import com.comet.letseat.map.view.type.GPSErrorType
 // 지도 클래스를 관리하는 VM
 class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase, private val getLocationUseCase: GetLocationUseCase) : ViewModel() {
 
+
+    companion object {
+        // 유저 선택지의 기본 카테고리
+        private val DEFAULT_CATEGORY : List<String> = listOf("아침", "점심", "저녁", "짠", "매운", "달달한", "신맛", "감칠맛")
+    }
+
     // 액티비티에서 접근하는 LiveData. Mutable 하지 않게 제공
     val locationLiveData : LiveData<UserLocation>
         get() = _userLocationLiveData // get property이용해서 mutable한 livedata 제공
@@ -24,6 +30,14 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase, private val
         get() = _gpsErrorLiveData
 
     private val _gpsErrorLiveData : MutableLiveData<Event<GPSErrorType>> = MutableLiveData()
+
+    // 유저의 카테고리 정보를 제공할 live data
+    val userSelectionLiveData : LiveData<List<String>>
+        get() = _userCategoryLiveData
+
+    // 유저의 선택지를 저장하고 있는 필드. 기본적으로 제공하는 카테고리 포함
+    private val userSelection : MutableList<String> = mutableListOf<String>().apply { addAll(DEFAULT_CATEGORY) }
+    private val _userCategoryLiveData : MutableLiveData<List<String>> = MutableLiveData<List<String>>().apply { value = userSelection }
 
     // gps 정보 불러오는 메소드
     fun loadLocation() {

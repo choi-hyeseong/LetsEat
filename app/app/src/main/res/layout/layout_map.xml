@@ -24,7 +24,7 @@
             android:layout_height="match_parent">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/cardView"
+                android:id="@+id/search"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_margin="16dp"
@@ -90,7 +90,7 @@
                 android:elevation="10dp"
                 android:padding="12dp"
                 android:src="@drawable/setting_drawable"
-                app:layout_constraintStart_toEndOf="@+id/cardView"
+                app:layout_constraintStart_toEndOf="@+id/search"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageButton

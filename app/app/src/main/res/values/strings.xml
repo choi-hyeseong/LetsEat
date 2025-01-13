@@ -19,4 +19,10 @@
     <string name="delete_user_setting_detail">사용자의 검색 이력 및 기록을 삭제합니다.</string>
     <string name="ai_history">AI 메뉴 추천 이력</string>
     <string name="ai_history_detail">AI의 메뉴 추천 이력을 확인합니다.</string>
+    <string name="lets_eat_something">밥 묵으러 가자</string>
+    <string name="setup_category">카테고리 설정</string>
+    <string name="add_category">카테고리 직접 추가</string>
+    <string name="eat_something">밥 묵기</string>
+    <string name="add">추가</string>
+    <string name="which_type_want">어떤 느낌의 음식을 원하세요?</string>
 </resources>

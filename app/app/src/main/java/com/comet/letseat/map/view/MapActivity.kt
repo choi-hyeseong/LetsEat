@@ -13,6 +13,7 @@ import com.comet.letseat.map.gps.dao.LocationDao
 import com.comet.letseat.map.gps.repository.NetworkLocationRepository
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
+import com.comet.letseat.map.view.dialog.ChooseDialog
 import com.comet.letseat.map.view.type.GPSErrorType
 import com.comet.letseat.notifyMessage
 import com.comet.letseat.user.setting.SettingActivity
@@ -63,6 +64,11 @@ class MapActivity : AppCompatActivity() {
         bind.settingButton.setThrottleClickListener {
             // 설정 액티비티로 이동 - 백스택 유지
             startActivity(Intent(this, SettingActivity::class.java))
+        }
+
+        bind.search.setThrottleClickListener {
+            // 검색 다이얼로그 호출
+            ChooseDialog(viewModel).show(supportFragmentManager, "ChooseDialog")
         }
     }
 
