@@ -8,6 +8,7 @@ import com.comet.letseat.TAG
 import com.comet.letseat.common.livedata.Event
 import com.comet.letseat.common.view.state.ViewCheckState
 import com.comet.letseat.common.view.state.toState
+import com.comet.letseat.common.view.state.toStringMap
 import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseInputValidator
 import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseValidErrorType
 import com.comet.letseat.map.view.dialog.choose.valid.predict.PredictValidErrorType
@@ -48,6 +49,12 @@ class ChooseDialogViewModel(
         get() = _userCheckError
 
     private val _userCheckError: MutableLiveData<Event<PredictValidErrorType>> = MutableLiveData()
+
+
+    // 최종 선택 결과 설정용 observer
+    val resultLiveData : LiveData<Event<List<String>>>
+        get() = _userResultLiveData
+    private val _userResultLiveData : MutableLiveData<Event<List<String>>> = MutableLiveData()
 
 
     /**
@@ -97,7 +104,7 @@ class ChooseDialogViewModel(
             else _userCheckError.value = Event(error.first().error)
             return
         }
-        // 성공시 todo
+        _userResultLiveData.value = Event(userSelection.filter { it.isChecked }.toStringMap())
     }
 
 }

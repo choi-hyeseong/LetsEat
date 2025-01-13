@@ -3,23 +3,51 @@ package com.comet.letseat.map.view.dialog.result
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.CompoundButton
+import androidx.core.os.bundleOf
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.comet.letseat.R
 import com.comet.letseat.common.dialog.AbstractDialog
 import com.comet.letseat.common.view.setThrottleClickListener
-import com.comet.letseat.common.view.state.ViewCheckState
-import com.comet.letseat.databinding.ChooseItemBinding
 import com.comet.letseat.databinding.DialogResultBinding
-import com.comet.letseat.map.view.MapViewModel
+import com.comet.letseat.map.view.dialog.adapter.SelectionItemAdapter
 import com.comet.letseat.map.view.dialog.result.valid.result.ResultValidErrorType
 import com.comet.letseat.map.view.dialog.result.valid.result.ResultValidator
+import java.io.Serializable
 
-class ResultDialog(private val viewModel: MapViewModel) : AbstractDialog<DialogResultBinding>() {
+class ResultDialog : AbstractDialog<DialogResultBinding>() {
+
+    companion object {
+
+        // dialog request key
+        const val REQUEST_KEY : String = "RESULT_DIALOG_KEY"
+        // result key
+        const val RESULT_KEY : String = "RESULT_DIALOG_RESULT_KEY"
+        // input key
+        const val INPUT_KEY : String = "RESULT_DIALOG_MENUS"
+
+        /**
+         * Dialog를 보여주는 companion 함수
+         * @param fragmentManager 보여질 프래그먼트 매니저입니다.
+         * @param lifecycleOwner callback을 관리할 lifecycle의 owner입니다.
+         * @param callback 요청 성공시 결과를 처리할 콜백입니다. - 콜백의 param은 최종적으로 선택된 메뉴입니다.
+         */
+        fun show(input : ResultDialogInput, fragmentManager: FragmentManager, lifecycleOwner : LifecycleOwner, callback : (String) -> Unit) {
+            val dialog = ResultDialog().apply {
+                arguments = bundleOf(INPUT_KEY to input)
+            }
+            dialog.show(fragmentManager, null) // tag 없이
+            fragmentManager.setFragmentResultListener(REQUEST_KEY, lifecycleOwner) { _, bundle ->
+                val result : String = bundle.getString(RESULT_KEY) ?: return@setFragmentResultListener
+                callback(result)
+            }
+        }
+
+    }
 
     private val dialogViewModel : ResultDialogViewModel = ResultDialogViewModel(ResultValidator())
-    private lateinit var resultAdapter : ResultItemAdapter
+    private lateinit var resultAdapter : SelectionItemAdapter
 
     override fun onResume() {
         super.onResume()
@@ -27,13 +55,21 @@ class ResultDialog(private val viewModel: MapViewModel) : AbstractDialog<DialogR
     }
 
     override fun initView(bind: DialogResultBinding) {
+        // argument init
+        val input = requireArguments().getSerializable(INPUT_KEY) as? ResultDialogInput
+        if (input == null) {
+            notifyMessage(R.string.result_dialog_menu_not_found)
+            return
+        }
+        dialogViewModel.updateMenu(input) // VM에게 전달
+
         bind.close.setThrottleClickListener {
             // 취소
             dismiss()
         }
 
         bind.chooseRecycler.apply {
-            resultAdapter = ResultItemAdapter() // adapter 할당
+            resultAdapter = SelectionItemAdapter(layoutInflater, requireContext()) { dialogViewModel.onChooseResultSelection(it) } // adapter 할당
             adapter = resultAdapter
             layoutManager = GridLayoutManager(requireContext(), 3) // 3열의 세로 레이아웃
         }
@@ -53,8 +89,17 @@ class ResultDialog(private val viewModel: MapViewModel) : AbstractDialog<DialogR
             }
         }
 
+        // 결과 데이터 갱신시
         dialogViewModel.userResultLiveData.observe(viewLifecycleOwner) {
             resultAdapter.update(it)
+        }
+
+        // 최종 음식 선택 완료시
+        dialogViewModel.resultLiveData.observe(viewLifecycleOwner) {
+            it.getContent()?.let { result ->
+                parentFragmentManager.setFragmentResult(REQUEST_KEY, bundleOf(RESULT_KEY to result)) // bundle에 담아 결과 리턴
+                dismiss() //종료
+            }
         }
 
 
@@ -65,53 +110,10 @@ class ResultDialog(private val viewModel: MapViewModel) : AbstractDialog<DialogR
     override fun provideBinding(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): DialogResultBinding {
         return DialogResultBinding.inflate(layoutInflater, container, false)
     }
-
-    private inner class ResultItemAdapter : RecyclerView.Adapter<ResultItemHolder>() {
-
-        // vm에서 받은 check state.
-        private val items : MutableList<ViewCheckState> = mutableListOf()
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResultItemHolder {
-            val view : ChooseItemBinding = ChooseItemBinding.inflate(layoutInflater, parent, false)
-            return ResultItemHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: ResultItemHolder, position: Int) {
-            holder.bind(items[position], position) // 각 아이템마다 바인딩
-        }
-
-        override fun getItemCount(): Int {
-            return items.size
-        }
-
-        // 리사이클러뷰 업데이트
-        fun update(updateItems : List<ViewCheckState>) {
-            items.clear()
-            items.addAll(updateItems)
-            notifyDataSetChanged()
-        }
-    }
-
-    private inner class ResultItemHolder(private val view : ChooseItemBinding) : RecyclerView.ViewHolder(view.root), CompoundButton.OnCheckedChangeListener {
-
-        // 기본 초기화전 pos. -1인채로 요청하면 not accept됨
-        var pos : Int = -1
-
-        // 각 아이템마다 바인드 될때 할 설정
-        fun bind(item : ViewCheckState, pos : Int) {
-            view.radio.apply {
-                text = item.data // 텍스트 변경
-                isChecked = item.isChecked
-                setOnCheckedChangeListener(this@ResultItemHolder) // 텍스트 컬러 바꾸는 리스너 변경
-                onCheckedChanged(this, item.isChecked) //아이템 적용
-            }
-            this.pos = pos
-        }
-
-        override fun onCheckedChanged(p0: CompoundButton, isChecked: Boolean) {
-            val color = if (isChecked) requireContext().getColor(R.color.white) else requireContext().getColor(R.color.black)
-            view.radio.setTextColor(color)
-            dialogViewModel.onChooseResultSelection(pos) // vm에 저장된 state 업데이트
-        }
-    }
 }
+
+/**
+ * 해당 다이얼로그에 표시할 메뉴값들
+ * @property menus AI가 예측한 메뉴입니다.
+ */
+data class ResultDialogInput(val menus : List<String>) : Serializable

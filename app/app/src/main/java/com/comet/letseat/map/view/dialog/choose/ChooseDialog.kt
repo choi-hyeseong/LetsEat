@@ -3,27 +3,49 @@ package com.comet.letseat.map.view.dialog.choose
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.CompoundButton
-import android.widget.CompoundButton.OnCheckedChangeListener
+import androidx.core.os.bundleOf
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.comet.letseat.R
 import com.comet.letseat.common.dialog.AbstractDialog
 import com.comet.letseat.common.view.setThrottleClickListener
-import com.comet.letseat.common.view.state.ViewCheckState
-import com.comet.letseat.databinding.ChooseItemBinding
 import com.comet.letseat.databinding.DialogChooseBinding
-import com.comet.letseat.map.view.MapViewModel
+import com.comet.letseat.map.view.dialog.adapter.SelectionItemAdapter
 import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseInputValidator
 import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseValidErrorType
 import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseViewValidator
 import com.comet.letseat.map.view.dialog.choose.valid.predict.PredictValidErrorType
 import com.comet.letseat.map.view.dialog.choose.valid.predict.PredictValidator
+import java.io.Serializable
 
 
-class ChooseDialog(val viewModel: MapViewModel) : AbstractDialog<DialogChooseBinding>() {
+class ChooseDialog : AbstractDialog<DialogChooseBinding>() {
 
-    private lateinit var itemAdapter : ItemAdapter
+    companion object {
+
+        // dialog request key
+        const val REQUEST_KEY : String = "CHOOSE_DIALOG_KEY"
+        // result key
+        const val RESULT_KEY : String = "CHOOSE_DIALOG_RESULT"
+
+        /**
+         * Dialog를 보여주는 companion 함수
+         * @param fragmentManager 보여질 프래그먼트 매니저입니다.
+         * @param lifecycleOwner callback을 관리할 lifecycle의 owner입니다.
+         * @param callback 요청 성공시 결과를 처리할 콜백입니다.
+         */
+        fun show(fragmentManager: FragmentManager, lifecycleOwner : LifecycleOwner, callback : (ChooseResult) -> Unit) {
+            ChooseDialog().show(fragmentManager, null) // tag 없이
+            fragmentManager.setFragmentResultListener(REQUEST_KEY, lifecycleOwner) { _, bundle ->
+                val result : ChooseResult = bundle.getSerializable(RESULT_KEY) as? ChooseResult ?: return@setFragmentResultListener
+                callback(result)
+            }
+        }
+
+    }
+
+    private lateinit var itemAdapter : SelectionItemAdapter
     // todo hilt - fragment는 생성자 없어야함.
     private val validator = ChooseViewValidator(ChooseInputValidator())
     private val chooseViewModel = ChooseDialogViewModel(ChooseInputValidator(), PredictValidator())
@@ -41,7 +63,7 @@ class ChooseDialog(val viewModel: MapViewModel) : AbstractDialog<DialogChooseBin
         }
 
         bind.chooseRecycler.apply {
-            itemAdapter = ItemAdapter() // adapter 할당
+            itemAdapter = SelectionItemAdapter(layoutInflater, requireContext()) { chooseViewModel.onChooseDialogCheck(it) } // adapter 할당
             adapter = itemAdapter
             layoutManager = GridLayoutManager(requireContext(), 3) // 3열의 세로 레이아웃
         }
@@ -53,6 +75,7 @@ class ChooseDialog(val viewModel: MapViewModel) : AbstractDialog<DialogChooseBin
             if (validator.validate(requireContext(), bind))
                 chooseViewModel.addCategory(bind.input.text.toString())
         }
+
 
         bind.predict.setThrottleClickListener {
             // 예측 요청
@@ -70,10 +93,12 @@ class ChooseDialog(val viewModel: MapViewModel) : AbstractDialog<DialogChooseBin
             }
         }
 
+        // 유저 선택정보 가져옴 - 기본 데이터 init과 화면 회전시
         chooseViewModel.userSelectionLiveData.observe(viewLifecycleOwner) {
             itemAdapter.update(it)
         }
 
+        // 체크박스 검증 에러시
         chooseViewModel.userCheckboxErrorLiveData.observe(viewLifecycleOwner) {
             it.getContent()?.let {event ->
                 when(event) {
@@ -83,6 +108,14 @@ class ChooseDialog(val viewModel: MapViewModel) : AbstractDialog<DialogChooseBin
 
             }
         }
+
+        // 카테고리 선택 완료시
+        chooseViewModel.resultLiveData.observe(viewLifecycleOwner) {
+            it.getContent()?.let { result ->
+                parentFragmentManager.setFragmentResult(REQUEST_KEY, bundleOf(RESULT_KEY to ChooseResult(result))) // bundle에 담아 결과 리턴
+                dismiss() //종료
+            }
+        }
     }
 
     override fun onResume() {
@@ -90,54 +123,8 @@ class ChooseDialog(val viewModel: MapViewModel) : AbstractDialog<DialogChooseBin
         resize(0.9f, 0.9f)
     }
 
-    // 선택지를 위한 리사이클러뷰
-    private inner class ItemAdapter : RecyclerView.Adapter<ItemViewHolder>() {
-
-        // vm에서 받은 check state. 기본적으로 false로 되어 있으나, 클릭시 vm에서 업데이트 됨. 추후 observe시 업데이트 된 상태 가져올 수 있음.
-        private val items : MutableList<ViewCheckState> = mutableListOf()
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-            val view : ChooseItemBinding = ChooseItemBinding.inflate(layoutInflater, parent, false)
-            return ItemViewHolder(view)
-        }
-
-        override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-            holder.bind(items[position], position) // 각 아이템마다 바인딩
-        }
-
-        override fun getItemCount(): Int {
-            return items.size
-        }
-
-        // 리사이클러뷰 업데이트
-        fun update(updateItems : List<ViewCheckState>) {
-            items.clear()
-            items.addAll(updateItems)
-            notifyDataSetChanged()
-        }
-    }
-
-    private inner class ItemViewHolder(private val view : ChooseItemBinding) : RecyclerView.ViewHolder(view.root), OnCheckedChangeListener {
-
-        // 기본 초기화전 pos. -1인채로 요청하면 not accept됨
-        var pos : Int = -1
-
-        // 각 아이템마다 바인드 될때 할 설정
-        fun bind(item : ViewCheckState, pos : Int) {
-            view.radio.apply {
-                text = item.data // 텍스트 변경
-                isChecked = item.isChecked
-                setOnCheckedChangeListener(this@ItemViewHolder) // 텍스트 컬러 바꾸는 리스너 변경
-                onCheckedChanged(this, item.isChecked) // item 데이터 적용
-            }
-            this.pos = pos
-        }
-
-        override fun onCheckedChanged(p0: CompoundButton, isChecked: Boolean) {
-            val color = if (isChecked) requireContext().getColor(R.color.white) else requireContext().getColor(R.color.black)
-            view.radio.setTextColor(color)
-            chooseViewModel.onChooseDialogCheck(pos) // vm에 저장된 state 업데이트
-        }
-    }
-
 }
+
+
+// fragment의 요청 결과 반환용 클래스
+data class ChooseResult(val selections : List<String>) : Serializable

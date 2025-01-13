@@ -10,4 +10,9 @@ data class ViewCheckState(val data : String, var isChecked : Boolean)
 /**
  * MutableList<String>으로 된 단순 값을 상태 클래스로 변환하는 확장함수
  */
-fun MutableList<String>.toState() = this.map { ViewCheckState(it, false) }.toMutableList()
+fun List<String>.toState() = this.map { ViewCheckState(it, false) }.toMutableList()
+
+/**
+ * 최종 결과값 반환을 위해 ViewState를 String 형식으로 flatten 시키는 확장함수
+ */
+fun List<ViewCheckState>.toStringMap() = this.map { it.data }.toMutableList()

@@ -14,6 +14,7 @@ import com.comet.letseat.map.gps.repository.NetworkLocationRepository
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
 import com.comet.letseat.map.view.dialog.result.ResultDialog
+import com.comet.letseat.map.view.dialog.result.ResultDialogInput
 import com.comet.letseat.map.view.type.GPSErrorType
 import com.comet.letseat.notifyMessage
 import com.comet.letseat.user.setting.SettingActivity
@@ -68,7 +69,9 @@ class MapActivity : AppCompatActivity() {
 
         bind.search.setThrottleClickListener {
             // 검색 다이얼로그 호출
-            ResultDialog(viewModel).show(supportFragmentManager, "ChooseDialog")
+            ResultDialog.show(ResultDialogInput(mutableListOf("밥", "조기", "반찬")), supportFragmentManager, this) { result ->
+                Log.e(TAG, "LAST selection $result")
+            }
 
         }
     }
