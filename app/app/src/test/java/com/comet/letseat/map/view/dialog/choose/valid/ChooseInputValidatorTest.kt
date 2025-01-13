@@ -1,5 +1,7 @@
 package com.comet.letseat.map.view.dialog.choose.valid
 
+import com.comet.letseat.map.view.dialog.valid.choose.ChooseInputValidator
+import com.comet.letseat.map.view.dialog.valid.choose.ChooseValidError
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

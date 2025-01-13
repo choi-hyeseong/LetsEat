@@ -1,4 +1,4 @@
-package com.comet.letseat.map.view.dialog.choose.valid
+package com.comet.letseat.map.view.dialog.valid.choose
 
 import com.comet.letseat.common.view.valid.ValidationError
 import com.comet.letseat.common.view.valid.ValidationResult

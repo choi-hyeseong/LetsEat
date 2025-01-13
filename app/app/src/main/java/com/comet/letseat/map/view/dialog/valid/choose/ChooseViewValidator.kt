@@ -1,4 +1,4 @@
-package com.comet.letseat.map.view.dialog.choose.valid
+package com.comet.letseat.map.view.dialog.valid.choose
 
 import android.content.Context
 import com.comet.letseat.R

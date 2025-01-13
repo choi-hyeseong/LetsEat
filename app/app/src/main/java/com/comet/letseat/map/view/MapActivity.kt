@@ -13,8 +13,8 @@ import com.comet.letseat.map.gps.dao.LocationDao
 import com.comet.letseat.map.gps.repository.NetworkLocationRepository
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
-import com.comet.letseat.map.view.dialog.choose.ChooseDialog
-import com.comet.letseat.map.view.dialog.choose.valid.ChooseInputValidator
+import com.comet.letseat.map.view.dialog.ChooseDialog
+import com.comet.letseat.map.view.dialog.valid.choose.ChooseInputValidator
 import com.comet.letseat.map.view.type.GPSErrorType
 import com.comet.letseat.notifyMessage
 import com.comet.letseat.user.setting.SettingActivity

@@ -1,4 +1,4 @@
-package com.comet.letseat.map.view.dialog.fail
+package com.comet.letseat.map.view.dialog
 
 import android.os.Bundle
 import android.view.LayoutInflater

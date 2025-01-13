@@ -1,4 +1,4 @@
-package com.comet.letseat.map.view.dialog.choose
+package com.comet.letseat.map.view.dialog
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,9 +13,9 @@ import com.comet.letseat.common.view.setThrottleClickListener
 import com.comet.letseat.databinding.ChooseItemBinding
 import com.comet.letseat.databinding.DialogChooseBinding
 import com.comet.letseat.map.view.MapViewModel
-import com.comet.letseat.map.view.dialog.choose.valid.ChooseInputValidator
-import com.comet.letseat.map.view.dialog.choose.valid.ChooseValidError
-import com.comet.letseat.map.view.dialog.choose.valid.ChooseViewValidator
+import com.comet.letseat.map.view.dialog.valid.choose.ChooseInputValidator
+import com.comet.letseat.map.view.dialog.valid.choose.ChooseValidError
+import com.comet.letseat.map.view.dialog.valid.choose.ChooseViewValidator
 
 
 class ChooseDialog(val viewModel: MapViewModel) : AbstractDialog<DialogChooseBinding>() {

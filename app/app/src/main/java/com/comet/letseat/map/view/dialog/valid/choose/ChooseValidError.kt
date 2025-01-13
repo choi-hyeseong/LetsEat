@@ -1,4 +1,4 @@
-package com.comet.letseat.map.view.dialog.choose.valid
+package com.comet.letseat.map.view.dialog.valid.choose
 
 /**
  * 선택 다이얼로그에서 입력값의 검증 결과 오류를 나타냅니다.
