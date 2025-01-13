@@ -7,11 +7,22 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.comet.letseat.common.storage.PreferenceDataStore
 import com.comet.letseat.map.view.MapActivity
+import com.comet.letseat.user.local.repository.PreferenceUserRepository
+import com.comet.letseat.user.local.usecase.ExistUserUseCase
+import com.comet.letseat.user.local.usecase.SaveUserUseCase
 import com.permissionx.guolindev.PermissionX
 
 // 유저 정보 검증용 액티비티 - 뷰 따로 필요 없을 예정 -> 검증 끝나면 MapActivity로 이동
 class MainActivity : AppCompatActivity() {
+
+
+    // todo hilt inject
+    val viewModel : MainViewModel by lazy {
+        val userRepository = PreferenceUserRepository(PreferenceDataStore(this))
+        MainViewModel(ExistUserUseCase(userRepository), SaveUserUseCase(userRepository))
+    }
 
     companion object {
         // permission constant - 13이후 manifest에서 펄미션 상수 사라짐
@@ -55,8 +66,12 @@ class MainActivity : AppCompatActivity() {
 
     // 펄미션 허용 이후
     private fun init() {
-        // TODO
-        startActivityWithBackstackClear(MapActivity::class.java)
+        viewModel.initializeLiveData.observe(this) {
+            // init 성공시
+            startActivityWithBackstackClear(MapActivity::class.java)
+        }
+        viewModel.initUserData()
+
     }
 
     // 위치 권한 확인
