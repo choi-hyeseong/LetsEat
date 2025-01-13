@@ -1,0 +1,62 @@
+package com.comet.letseat.map.view.dialog.choose.valid
+
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+
+// 카테고리 입력 검증기 테스트
+class ChooseInputValidatorTest {
+
+    lateinit var validator : ChooseInputValidator
+
+    @Before
+    fun before() {
+        validator = ChooseInputValidator()
+    }
+
+    @After
+    fun tearDown() {
+        // do something
+    }
+
+
+    // 검증 성공시
+    @Test
+    fun testValidateSuccess() {
+        val input = "감바스" //비어있지 않고 짧은 입력값
+        val result = validator.valid(input)
+        assertTrue(result.isSuccess) // 성공
+        assertEquals(0, result.error.size) // 에러 비어있음
+    }
+
+
+    // 입력값이 빈 문자열인경우
+    @Test
+    fun testValidateFail_With_Empty() {
+        val input = "" //빈 문자열
+        val result = validator.valid(input)
+        assertFalse(result.isSuccess)
+        assertEquals(1, result.error.size)
+
+        val error = result.error.first()
+        assertEquals("input", error.fieldName) // 에러 필드명
+        assertEquals(ChooseValidError.EMPTY, error.error) // 에러 값
+    }
+
+
+    // 입력값이 긴경우
+    @Test
+    fun testValidateFail_With_Long() {
+        val input = "SOOOOOO LOOOOONG STRING" //빈 문자열
+        val result = validator.valid(input)
+        assertFalse(result.isSuccess)
+        assertEquals(1, result.error.size)
+
+        val error = result.error.first()
+        assertEquals("input", error.fieldName) // 에러 필드명
+        assertEquals(ChooseValidError.LONG, error.error) // 에러 값
+    }
+}
