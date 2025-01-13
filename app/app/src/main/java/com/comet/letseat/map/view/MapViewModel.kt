@@ -1,17 +1,34 @@
 package com.comet.letseat.map.view
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.comet.letseat.TAG
 import com.comet.letseat.common.livedata.Event
 import com.comet.letseat.map.gps.model.UserLocation
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
 import com.comet.letseat.map.view.type.GPSErrorType
+import com.comet.letseat.user.local.model.UserData
+import com.comet.letseat.user.local.usecase.LoadUserUseCase
+import com.comet.letseat.user.remote.predict.usecase.PredictUseCase
+import com.comet.letseat.user.remote.type.NetworkErrorType
+import com.skydoves.sandwich.onError
+import com.skydoves.sandwich.onException
+import com.skydoves.sandwich.onSuccess
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // 지도 클래스를 관리하는 VM
 class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
-                   private val getLocationUseCase: GetLocationUseCase) : ViewModel() {
+                   private val getLocationUseCase: GetLocationUseCase,
+                   private val loadUserUseCase: LoadUserUseCase,
+                   private val predictUseCase: PredictUseCase) : ViewModel() {
+
+
+    private var cachedUser : UserData? = null // 기존에 예측할때 필요한 유저 정보. 캐시시켜두고 여러번 사용할때 불러와서 사용하기
 
     // 액티비티에서 접근하는 LiveData. Mutable 하지 않게 제공
     val locationLiveData: LiveData<UserLocation>
@@ -25,6 +42,22 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
         get() = _gpsErrorLiveData
 
     private val _gpsErrorLiveData: MutableLiveData<Event<GPSErrorType>> = MutableLiveData()
+
+    // 유저의 네트워크 요청 로딩 기다리기 위한 livedata - 1회성 팝업
+    val loadingLiveData : LiveData<Event<Boolean>>
+        get() = _networkLoadingLiveData
+    private val _networkLoadingLiveData : MutableLiveData<Event<Boolean>> = MutableLiveData()
+
+    // 네트워크 요청 오류 알려주기 위한 liveData
+    val networkErrorLiveData : LiveData<Event<NetworkErrorType>>
+        get() = _networkError
+    private val _networkError : MutableLiveData<Event<NetworkErrorType>> = MutableLiveData()
+
+    val predictLiveData : LiveData<Event<List<String>>>
+        get() = _predictResponseData
+    private val _predictResponseData : MutableLiveData<Event<List<String>>> = MutableLiveData()
+
+
 
 
     // gps 정보 불러오는 메소드
@@ -48,7 +81,26 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
         }
     }
 
-
+    fun predict(categories : List<String>) {
+        _networkLoadingLiveData.value = Event(true) // 로딩 보여주기
+        // 비동기 처리
+        CoroutineScope(Dispatchers.IO).launch {
+            // 캐시된 유저가 없는경우
+            if (cachedUser == null)
+                // 유저 로드
+                cachedUser = loadUserUseCase()
+            predictUseCase(cachedUser!!.uuid, categories).onSuccess {
+                _predictResponseData.postValue(Event(data.menus))
+            }.onError {
+                _networkError.postValue(Event(NetworkErrorType.EXCEPTION))
+                Log.e(TAG, "encountered predict error : ${errorBody?.string()}")
+            }.onException {
+                _networkError.postValue(Event(NetworkErrorType.EXCEPTION))
+                Log.e(TAG, "encountered predict exception", exception)
+            }
+            _networkLoadingLiveData.postValue( Event(false)) //로딩 끝내기
+        }
+    }
 
 
 }

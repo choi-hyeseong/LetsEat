@@ -7,16 +7,25 @@ import androidx.appcompat.app.AppCompatActivity
 import com.comet.letseat.BuildConfig
 import com.comet.letseat.R
 import com.comet.letseat.TAG
+import com.comet.letseat.common.storage.PreferenceDataStore
+import com.comet.letseat.common.util.NetworkUtil
 import com.comet.letseat.common.view.setThrottleClickListener
 import com.comet.letseat.databinding.LayoutMapBinding
 import com.comet.letseat.map.gps.dao.LocationDao
 import com.comet.letseat.map.gps.repository.NetworkLocationRepository
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
+import com.comet.letseat.map.view.dialog.LoadingDialog
+import com.comet.letseat.map.view.dialog.choose.ChooseDialog
 import com.comet.letseat.map.view.dialog.result.ResultDialog
 import com.comet.letseat.map.view.dialog.result.ResultDialogInput
 import com.comet.letseat.map.view.type.GPSErrorType
 import com.comet.letseat.notifyMessage
+import com.comet.letseat.user.local.repository.PreferenceUserRepository
+import com.comet.letseat.user.local.usecase.LoadUserUseCase
+import com.comet.letseat.user.remote.predict.PredictAPI
+import com.comet.letseat.user.remote.predict.repository.RemotePredictRepository
+import com.comet.letseat.user.remote.predict.usecase.PredictUseCase
 import com.comet.letseat.user.setting.SettingActivity
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
@@ -33,11 +42,15 @@ class MapActivity : AppCompatActivity() {
     private var kakaoMap: KakaoMap? = null // 초기화된 카카오맵. null일경우 미초기화
     private var centerLabel: Label? = null // 현재 자신의 위치 나타내는 라벨 (점) null일경우 미초기화
 
+    private var loadingDialog: LoadingDialog? = null
+
     // TODO hilt
     private val viewModel: MapViewModel by lazy {
         val gpsDao = LocationDao(this)
         val locationRepository = NetworkLocationRepository(gpsDao)
-        MapViewModel(GpsEnabledUseCase(locationRepository), GetLocationUseCase(locationRepository))
+        val userRepository = PreferenceUserRepository(PreferenceDataStore(this))
+        val predictRepository = RemotePredictRepository(NetworkUtil.provideAPI(PredictAPI::class.java))
+        MapViewModel(GpsEnabledUseCase(locationRepository), GetLocationUseCase(locationRepository), LoadUserUseCase(userRepository), PredictUseCase(predictRepository))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +64,12 @@ class MapActivity : AppCompatActivity() {
 
         initView(view)
         initObserver()
+    }
+
+    // 만약 화면 회전, 홈화면등과 같이 중단되는 사유가 있을경우 dialog 취소
+    override fun onPause() {
+        super.onPause()
+        loadingDialog?.dismiss()
     }
 
     // 맵뷰 초기화
@@ -69,10 +88,9 @@ class MapActivity : AppCompatActivity() {
 
         bind.search.setThrottleClickListener {
             // 검색 다이얼로그 호출
-            ResultDialog.show(ResultDialogInput(mutableListOf("밥", "조기", "반찬")), supportFragmentManager, this) { result ->
-                Log.e(TAG, "LAST selection $result")
+            ChooseDialog.show(supportFragmentManager, this) { result ->
+                viewModel.predict(result.selections)
             }
-
         }
     }
 
@@ -122,7 +140,25 @@ class MapActivity : AppCompatActivity() {
                 }
             }
         }
+
+        viewModel.loadingLiveData.observe(this) { event ->
+            event.getContent()?.let { isLoading ->
+                if (isLoading)
+                    loadingDialog = LoadingDialog().also { it.show(supportFragmentManager, null) }
+                else
+                    loadingDialog?.dismiss() // false로 로딩되는 경우 한정해서 nullable하게
+            }
+        }
+
+        viewModel.predictLiveData.observe(this) { event ->
+            event.getContent()?.let { menus ->
+                ResultDialog.show(ResultDialogInput(menus), supportFragmentManager, this) {
+                    notifyMessage(it) // todo
+                }
+            }
+        }
     }
+
 
     // 맵 lifecycle중 삭제 - 오류 난 경우 할당용 콜백
     private inner class KakaoMapErrorCallback : MapLifeCycleCallback() {
