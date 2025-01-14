@@ -8,7 +8,7 @@ package com.comet.letseat.common.view.state
 data class ViewCheckState(val data : String, var isChecked : Boolean)
 
 /**
- * MutableList<String>으로 된 단순 값을 상태 클래스로 변환하는 확장함수
+ * List<String>으로 된 단순 값을 상태 클래스로 변환하는 확장함수
  */
 fun List<String>.toState() = this.map { ViewCheckState(it, false) }.toMutableList()
 

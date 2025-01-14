@@ -14,7 +14,7 @@ import com.comet.letseat.map.view.dialog.result.valid.result.ResultValidator
 
 class ResultDialogViewModel(private val validator: ResultValidator) : ViewModel() {
 
-    // 추천받은 음식에 대한 유저의 선택지를 저장하고 있는 필드. 기본적으로 제공하는 카테고리 포함. 체크 상태도 포함
+    // 추천받은 음식에 대한 유저의 선택지를 저장하고 있는 필드.
     private val resultSelection: MutableList<ViewCheckState> = mutableListOf()
 
     // 유저의 추천받은 음식의 카테고리 정보를 제공할 live data
