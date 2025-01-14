@@ -33,7 +33,7 @@ abstract class ViewStateViewModel : ViewModel() {
     }
 
     /**
-     * 유저의 체크박스의 정보가 맨 처음에 초기화 될 값 제공
+     * 유저의 체크박스 데이터의 초기 값 제공
      */
     protected abstract fun provideInitialSelection() : MutableList<ViewCheckState>
 }
