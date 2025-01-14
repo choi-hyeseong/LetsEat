@@ -22,6 +22,7 @@ class PredictValidator {
             error.add(ValidationError("checks", PredictValidErrorType.EMPTY))
 
         val checkCount = checks.filter { it.isChecked }.size
+        // 최대 체크 가능 수 넘어 선 경우
         if (checkCount > MAX_CHECK)
             error.add(ValidationError("checks", PredictValidErrorType.TOO_MANY))
 

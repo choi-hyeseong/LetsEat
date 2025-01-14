@@ -63,7 +63,7 @@ class ChooseDialog : AbstractDialog<DialogChooseBinding>() {
         }
 
         bind.chooseRecycler.apply {
-            itemAdapter = SelectionItemAdapter(layoutInflater, requireContext()) { chooseViewModel.onChooseDialogCheck(it) } // adapter 할당
+            itemAdapter = SelectionItemAdapter(layoutInflater, requireContext(), chooseViewModel) // adapter 할당
             adapter = itemAdapter
             layoutManager = GridLayoutManager(requireContext(), 3) // 3열의 세로 레이아웃
         }

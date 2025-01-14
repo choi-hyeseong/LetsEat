@@ -9,7 +9,7 @@ class NetworkUtil {
     companion object {
         // todo move to hilt module
 
-        private val BASE_URL = "http://0.tcp.jp.ngrok.io:17292/" // ngrok 이용한 임시 주소
+        private val BASE_URL = "http://0.tcp.jp.ngrok.io:14522/" // ngrok 이용한 임시 주소
 
         val retrofit : Retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)

@@ -59,6 +59,7 @@ class ResultDialog : AbstractDialog<DialogResultBinding>() {
         val input = requireArguments().getSerializable(INPUT_KEY) as? ResultDialogInput
         if (input == null) {
             notifyMessage(R.string.result_dialog_menu_not_found)
+            dismiss()
             return
         }
         dialogViewModel.updateMenu(input) // VM에게 전달
@@ -69,7 +70,7 @@ class ResultDialog : AbstractDialog<DialogResultBinding>() {
         }
 
         bind.chooseRecycler.apply {
-            resultAdapter = SelectionItemAdapter(layoutInflater, requireContext()) { dialogViewModel.onChooseResultSelection(it) } // adapter 할당
+            resultAdapter = SelectionItemAdapter(layoutInflater, requireContext(), dialogViewModel) // adapter 할당
             adapter = resultAdapter
             layoutManager = GridLayoutManager(requireContext(), 3) // 3열의 세로 레이아웃
         }
@@ -90,7 +91,7 @@ class ResultDialog : AbstractDialog<DialogResultBinding>() {
         }
 
         // 결과 데이터 갱신시
-        dialogViewModel.userResultLiveData.observe(viewLifecycleOwner) {
+        dialogViewModel.userSelectionLiveData.observe(viewLifecycleOwner) {
             resultAdapter.update(it)
         }
 
