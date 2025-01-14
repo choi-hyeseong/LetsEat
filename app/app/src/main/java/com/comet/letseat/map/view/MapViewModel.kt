@@ -48,10 +48,10 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
         get() = _networkLoadingLiveData
     private val _networkLoadingLiveData : MutableLiveData<Event<Boolean>> = MutableLiveData()
 
-    // 네트워크 요청 오류 알려주기 위한 liveData
-    val networkErrorLiveData : LiveData<Event<NetworkErrorType>>
-        get() = _networkError
-    private val _networkError : MutableLiveData<Event<NetworkErrorType>> = MutableLiveData()
+    // 메뉴 추천 네트워크 요청 오류 알려주기 위한 liveData
+    val predictNetworkErrorLiveData : LiveData<Event<NetworkErrorType>>
+        get() = _predictNetworkError
+    private val _predictNetworkError : MutableLiveData<Event<NetworkErrorType>> = MutableLiveData()
 
     val predictLiveData : LiveData<Event<List<String>>>
         get() = _predictResponseData
@@ -92,10 +92,10 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
             predictUseCase(cachedUser!!.uuid, categories).onSuccess {
                 _predictResponseData.postValue(Event(data.menus))
             }.onError {
-                _networkError.postValue(Event(NetworkErrorType.EXCEPTION))
+                _predictNetworkError.postValue(Event(NetworkErrorType.EXCEPTION))
                 Log.e(TAG, "encountered predict error : ${errorBody?.string()}")
             }.onException {
-                _networkError.postValue(Event(NetworkErrorType.EXCEPTION))
+                _predictNetworkError.postValue(Event(NetworkErrorType.EXCEPTION))
                 Log.e(TAG, "encountered predict exception", exception)
             }
             _networkLoadingLiveData.postValue( Event(false)) //로딩 끝내기

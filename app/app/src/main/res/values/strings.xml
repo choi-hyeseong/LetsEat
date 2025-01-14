@@ -43,5 +43,7 @@
     <string name="select_only_one">한개만 선택해주세요.</string>
 
     <string name="result_dialog_menu_not_found">메뉴 정보가 없습니다. 다시 시도해주세요.</string>
+    <string name="request_error">요청 도중 문제가 발생했습니다. 다시 시도해주세요.</string>
+    <string name="request_exception">요청이 처리되지 못했습니다. 네트워크 상태를 확인해주세요.</string>
 
 </resources>

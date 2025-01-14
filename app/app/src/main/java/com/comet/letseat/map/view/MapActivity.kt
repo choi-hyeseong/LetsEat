@@ -15,6 +15,7 @@ import com.comet.letseat.map.gps.dao.LocationDao
 import com.comet.letseat.map.gps.repository.NetworkLocationRepository
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
+import com.comet.letseat.map.view.dialog.FailDialog
 import com.comet.letseat.map.view.dialog.LoadingDialog
 import com.comet.letseat.map.view.dialog.choose.ChooseDialog
 import com.comet.letseat.map.view.dialog.result.ResultDialog
@@ -141,6 +142,7 @@ class MapActivity : AppCompatActivity() {
             }
         }
 
+        // 로딩 요청시
         viewModel.loadingLiveData.observe(this) { event ->
             event.getContent()?.let { isLoading ->
                 if (isLoading)
@@ -150,12 +152,21 @@ class MapActivity : AppCompatActivity() {
             }
         }
 
+        // 예측 성공시
         viewModel.predictLiveData.observe(this) { event ->
             event.getContent()?.let { menus ->
                 ResultDialog.show(ResultDialogInput(menus), supportFragmentManager, this) {
                     notifyMessage(it) // todo
                 }
             }
+        }
+
+        // 요청중 네트워크 오류를 받은경우
+        viewModel.predictNetworkErrorLiveData.observe(this) {
+            it.getContent()?.let { error ->
+                FailDialog.show(supportFragmentManager, error)
+            }
+
         }
     }
 
