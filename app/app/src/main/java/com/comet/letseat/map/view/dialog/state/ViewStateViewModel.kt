@@ -19,7 +19,7 @@ abstract class ViewStateViewModel : ViewModel() {
     // 유저의 체크박스 정보를 제공할 live data
     val userSelectionLiveData: LiveData<List<ViewCheckState>>
         get() = _internalSelectionLiveData
-    protected val _internalSelectionLiveData: MutableLiveData<List<ViewCheckState>> = MutableLiveData(checkSelection)
+    private val _internalSelectionLiveData: MutableLiveData<List<ViewCheckState>> = MutableLiveData(checkSelection)
 
     // 해당 위치의 체크박스 클릭시 데이터 업데이트
     fun onCheck(pos: Int) {
@@ -30,6 +30,24 @@ abstract class ViewStateViewModel : ViewModel() {
         }
         val checkState = checkSelection[pos]
         checkState.isChecked = !checkState.isChecked // 반전
+    }
+
+    /**
+     * 동적으로 체크박스 추가 및 LiveData notify
+     * @param state 추가할 체크박스의 정보입니다.
+     */
+    fun addState(state : ViewCheckState) {
+        checkSelection.add(state)
+        _internalSelectionLiveData.value = checkSelection
+    }
+
+    /**
+     * 동적으로 체크박스 여러개 추가 및 LiveData notify
+     * @param states 체크박스의 정보입니다.
+     */
+    fun addAllState(states : List<ViewCheckState>) {
+        checkSelection.addAll(states)
+        _internalSelectionLiveData.value = checkSelection
     }
 
     /**

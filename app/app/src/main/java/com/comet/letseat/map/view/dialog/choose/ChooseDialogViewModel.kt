@@ -64,8 +64,7 @@ class ChooseDialogViewModel(
             return
         }
         // 선택지 추가 및 알림
-        checkSelection.add(ViewCheckState(category, false))
-        _internalSelectionLiveData.value = checkSelection
+        addState(ViewCheckState(category, false))
     }
 
     /**
