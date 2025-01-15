@@ -13,5 +13,5 @@ interface MapRepository {
      * @param x 검색할 중심 x 좌표
      * @param y 검색할 중심 y 좌표
      */
-    suspend fun findStoresByKeyword(query : String, x : String, y : String) : Result<List<Store>>
+    suspend fun findStoresByKeyword(query : String, x : Double, y : Double) : Result<List<Store>>
 }

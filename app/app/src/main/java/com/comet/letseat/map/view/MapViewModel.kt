@@ -113,7 +113,7 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
     // 키워드로 가게를 찾는 메소드
     fun findStores(x : Double, y : Double, keyword : String) {
         CoroutineScope(Dispatchers.IO).launch {
-            getStoresByKeywordUseCase(keyword, x.toString(), y.toString()).onSuccess {
+            getStoresByKeywordUseCase(keyword, x, y).onSuccess {
                 _localStoreLiveData.postValue(it)
                 Log.e(TAG, it.toString())
             }.onFailure {

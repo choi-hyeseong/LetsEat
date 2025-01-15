@@ -13,9 +13,9 @@ class KakaoMapRepository(private val kakaoAPI: KakaoAPI) : MapRepository {
     /**
      * runCatching으로 잡아서 Result 형태로 반환
      */
-    override suspend fun findStoresByKeyword(query: String, x: String, y: String): Result<List<Store>> {
+    override suspend fun findStoresByKeyword(query: String, x: Double, y: Double): Result<List<Store>> {
         return kotlin.runCatching {
-            val response = kakaoAPI.findStoresByKeyword(query, x, y).getOrThrow() // api 호출. 실패시 throw 해서 failure 호출되게
+            val response = kakaoAPI.findStoresByKeyword(query, x.toString(), y.toString()).getOrThrow() // api 호출. 실패시 throw 해서 failure 호출되게
             response.toModel() // 모델로 변경
         }
     }

@@ -12,7 +12,7 @@ class GetStoresByKeywordUseCase(private val repository: MapRepository) {
     /**
      * @see MapRepository.findStoresByKeyword
      */
-    suspend operator fun invoke(query : String, x : String, y : String) : Result<List<Store>> {
+    suspend operator fun invoke(query : String, x : Double, y : Double) : Result<List<Store>> {
         return repository.findStoresByKeyword(query, x, y)
     }
 
