@@ -50,4 +50,19 @@
     <string name="distance_meter">%1$dm</string>
     <string name="distance_kilometer">%1$skm</string>
 
+    <string name="delete_user_info">유저 정보 삭제</string>
+    <string name="delete_user_info_detail">유저 정보를 삭제합니다. 삭제 후에는 앱이 종료됩니다.</string>
+
+    <string name="history">검색 이력</string>
+    <string name="date_format"># %1$s</string>
+    <string name="time_format">%1$s KST</string>
+    <string name="recommend_result">추천결과 %1$d건</string>
+
+    <string name="user_id">유저 아이디</string>
+    <string name="search_category">검색 카테고리</string>
+    <string name="response_code">응답 코드</string>
+    <string name="response_result">추천 결과</string>
+    <string name="history_dialog_argument_invalid">정보를 불러오는데 실패했습니다. 다시 시도해주세요.</string>
+    <string name="user_info_deleted">유저 정보가 삭제되었습니다.</string>
+    <string name="user_delete_failed">유저 정보 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.</string>
 </resources>

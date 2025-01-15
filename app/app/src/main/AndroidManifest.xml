@@ -32,6 +32,8 @@
         <!-- 설정 액티비티 -->
         <activity android:name=".user.setting.SettingActivity" android:parentActivityName=".map.view.MapActivity"  android:screenOrientation="portrait" android:exported="true"/>
 
+        <activity android:name=".user.history.view.HistoryActivity" android:parentActivityName=".user.setting.SettingActivity" android:screenOrientation="portrait" android:exported="true"/>
+
         <!-- API KEY Defined in local.properties -->
         <meta-data
             android:name="com.kakao.vectormap.APP_KEY"
