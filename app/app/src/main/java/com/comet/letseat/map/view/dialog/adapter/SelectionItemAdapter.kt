@@ -17,7 +17,9 @@ import com.comet.letseat.map.view.dialog.state.ViewStateViewModel
  * @param context resource 가져오기 위한 컨텍스트
  * @param viewModel 각 체크박스 클릭시 변경사항을 알려줄 viewmodel입니다. 화면 회전시 adapter가 갱신되므로 사용해도 괜찮을듯?
  */
-class SelectionItemAdapter(private val layoutInflater : LayoutInflater, private val context : Context, private val viewModel : ViewStateViewModel) : RecyclerView.Adapter<SelectionItemViewHolder>() {
+class SelectionItemAdapter(private val layoutInflater: LayoutInflater,
+                           private val context: Context,
+                           private val viewModel: ViewStateViewModel) : RecyclerView.Adapter<SelectionItemViewHolder>() {
 
     // vm에서 받은 check state. 기본적으로 false로 되어 있으나, 클릭시 vm에서 업데이트 됨. 추후 observe시 업데이트 된 상태 가져올 수 있음.
     private val items: MutableList<ViewCheckState> = mutableListOf()
@@ -35,6 +37,11 @@ class SelectionItemAdapter(private val layoutInflater : LayoutInflater, private 
         return items.size
     }
 
+    override fun onViewRecycled(holder: SelectionItemViewHolder) {
+        super.onViewRecycled(holder)
+        holder.recycle()
+    }
+
     // 리사이클러뷰 업데이트
     fun update(updateItems: List<ViewCheckState>) {
         items.clear()
@@ -49,30 +56,42 @@ class SelectionItemAdapter(private val layoutInflater : LayoutInflater, private 
  * @param context resid가져오기 위한 컨텍스트
  * @param onChecked 체크박스 체크시 처리할 로직
  */
-class SelectionItemViewHolder(private val view : ChooseItemBinding, private val context: Context, private val viewModel: ViewStateViewModel) : RecyclerView.ViewHolder(view.root), CompoundButton.OnCheckedChangeListener {
+class SelectionItemViewHolder(private val view: ChooseItemBinding,
+                              private val context: Context,
+                              private val viewModel: ViewStateViewModel) : RecyclerView.ViewHolder(view.root), CompoundButton.OnCheckedChangeListener {
 
-        // 기본 초기화전 pos. -1인채로 요청하면 not accept됨
-        var pos : Int = -1
+    // 기본 초기화전 pos. -1인채로 요청하면 not accept됨
+    var pos: Int = -1
 
-        // 각 아이템마다 바인드 될때 할 설정
-        fun bind(item : ViewCheckState, pos : Int) {
-            view.radio.apply {
-                text = item.data // 텍스트 변경
-                isChecked = item.isChecked
-                setOnCheckedChangeListener(this@SelectionItemViewHolder) // 텍스트 컬러 바꾸는 리스너 변경
-                handleColor(isChecked)
-            }
-            this.pos = pos
-        }
-
-        override fun onCheckedChanged(p0: CompoundButton, isChecked: Boolean) {
+    // 각 아이템마다 바인드 될때 할 설정
+    fun bind(item: ViewCheckState, pos: Int) {
+        view.radio.apply {
+            text = item.data // 텍스트 변경
+            isChecked = item.isChecked
+            setOnCheckedChangeListener(this@SelectionItemViewHolder) // 텍스트 컬러 바꾸는 리스너 변경
             handleColor(isChecked)
-            viewModel.onCheck(pos)
         }
-
-        // 뷰 체크시 컬러 설정
-        private fun handleColor(isChecked: Boolean) {
-            val color = if (isChecked) context.getColor(R.color.white) else context.getColor(R.color.black)
-            view.radio.setTextColor(color)
-        }
+        this.pos = pos
     }
+
+    /**
+     * 뷰홀더가 재활용될때 호출되는 메소드
+     * 뷰 홀더가 재활용 되므로 이전 뷰의 check listener가 동작하고 있음 -> 따라서 재활용되는 시점에서는 리스너 해지
+     */
+    fun recycle() {
+        view.radio.setOnCheckedChangeListener(null)
+    }
+
+    override fun onCheckedChanged(p0: CompoundButton, isChecked: Boolean) {
+        handleColor(isChecked)
+        viewModel.onCheck(pos)
+    }
+
+    // 뷰 체크시 컬러 설정
+    private fun handleColor(isChecked: Boolean) {
+        val color = if (isChecked) context.getColor(R.color.white) else context.getColor(R.color.black)
+        view.radio.setTextColor(color)
+    }
+
+
+}
