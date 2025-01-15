@@ -15,4 +15,4 @@ fun List<String>.toState() = this.map { ViewCheckState(it, false) }.toMutableLis
 /**
  * 최종 결과값 반환을 위해 ViewState를 String 형식으로 flatten 시키는 확장함수
  */
-fun List<ViewCheckState>.toStringMap() = this.map { it.data }.toMutableList()
+fun List<ViewCheckState>.convertToStringList() = this.map { it.data }.toMutableList()

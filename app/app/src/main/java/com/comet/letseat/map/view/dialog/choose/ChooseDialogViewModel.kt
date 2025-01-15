@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import com.comet.letseat.TAG
 import com.comet.letseat.common.livedata.Event
 import com.comet.letseat.common.view.state.ViewCheckState
+import com.comet.letseat.common.view.state.convertToStringList
 import com.comet.letseat.common.view.state.toState
-import com.comet.letseat.common.view.state.toStringMap
 import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseInputValidator
 import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseValidErrorType
 import com.comet.letseat.map.view.dialog.choose.valid.predict.PredictValidErrorType
@@ -80,7 +80,7 @@ class ChooseDialogViewModel(
             else _userCheckError.value = Event(error.first().error)
             return
         }
-        _userResultLiveData.value = Event(checkSelection.filter { it.isChecked }.toStringMap())
+        _userResultLiveData.value = Event(checkSelection.filter { it.isChecked }.convertToStringList())
     }
 
 }

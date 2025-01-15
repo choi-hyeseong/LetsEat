@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import com.comet.letseat.TAG
 import com.comet.letseat.common.livedata.Event
 import com.comet.letseat.common.view.state.ViewCheckState
+import com.comet.letseat.common.view.state.convertToStringList
 import com.comet.letseat.common.view.state.toState
-import com.comet.letseat.common.view.state.toStringMap
 import com.comet.letseat.map.view.dialog.result.valid.result.ResultValidErrorType
 import com.comet.letseat.map.view.dialog.result.valid.result.ResultValidator
 import com.comet.letseat.map.view.dialog.state.ViewStateViewModel
@@ -40,7 +40,7 @@ class ResultDialogViewModel(private val validator: ResultValidator) : ViewStateV
             return
         }
         // 1개만 선택됐으므로 맨 처음 item 가져옴
-        _userResultLiveData.value = Event(checkSelection.filter { it.isChecked }.toStringMap().first())
+        _userResultLiveData.value = Event(checkSelection.filter { it.isChecked }.convertToStringList().first())
     }
 
     /**
