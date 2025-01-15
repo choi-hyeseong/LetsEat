@@ -46,4 +46,8 @@
     <string name="request_error">요청 도중 문제가 발생했습니다. 다시 시도해주세요.</string>
     <string name="request_exception">요청이 처리되지 못했습니다. 네트워크 상태를 확인해주세요.</string>
 
+    <string name="kakao_map_stores_api_error">가게 검색 요청중 오류가 발생했습니다. 다시 시도해주세요.</string>
+    <string name="distance_meter">%1$dm</string>
+    <string name="distance_kilometer">%1$skm</string>
+
 </resources>

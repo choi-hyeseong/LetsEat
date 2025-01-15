@@ -3,7 +3,11 @@ package com.comet.letseat.map.view
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.comet.letseat.BuildConfig
 import com.comet.letseat.R
 import com.comet.letseat.TAG
@@ -11,10 +15,15 @@ import com.comet.letseat.common.storage.PreferenceDataStore
 import com.comet.letseat.common.util.NetworkUtil
 import com.comet.letseat.common.view.setThrottleClickListener
 import com.comet.letseat.databinding.LayoutMapBinding
+import com.comet.letseat.databinding.StoreItemBinding
 import com.comet.letseat.map.gps.dao.LocationDao
 import com.comet.letseat.map.gps.repository.NetworkLocationRepository
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
+import com.comet.letseat.map.kakao.api.KakaoAPI
+import com.comet.letseat.map.kakao.model.Store
+import com.comet.letseat.map.kakao.repoisotry.KakaoMapRepository
+import com.comet.letseat.map.kakao.usecase.GetStoresByKeywordUseCase
 import com.comet.letseat.map.view.dialog.FailDialog
 import com.comet.letseat.map.view.dialog.LoadingDialog
 import com.comet.letseat.map.view.dialog.choose.ChooseDialog
@@ -28,6 +37,7 @@ import com.comet.letseat.user.remote.predict.PredictAPI
 import com.comet.letseat.user.remote.predict.repository.RemotePredictRepository
 import com.comet.letseat.user.remote.predict.usecase.PredictUseCase
 import com.comet.letseat.user.setting.SettingActivity
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.KakaoMapSdk
@@ -37,6 +47,7 @@ import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.Label
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
+import com.kakao.vectormap.label.LabelTextStyle
 
 class MapActivity : AppCompatActivity() {
 
@@ -45,13 +56,22 @@ class MapActivity : AppCompatActivity() {
 
     private var loadingDialog: LoadingDialog? = null
 
+    private val markers : MutableList<Label> = mutableListOf() // 가게 나타내는 마커 목록
+
+    // 추후에 초기화될 가게 목록 어댑터
+    private lateinit var storeAdapter : StoreAdapter
+
+    // 뷰에서 나타나는 하단 드로워 초기화
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+
     // TODO hilt
     private val viewModel: MapViewModel by lazy {
         val gpsDao = LocationDao(this)
         val locationRepository = NetworkLocationRepository(gpsDao)
         val userRepository = PreferenceUserRepository(PreferenceDataStore(this))
         val predictRepository = RemotePredictRepository(NetworkUtil.provideAPI(PredictAPI::class.java))
-        MapViewModel(GpsEnabledUseCase(locationRepository), GetLocationUseCase(locationRepository), LoadUserUseCase(userRepository), PredictUseCase(predictRepository))
+        val mapRepository = KakaoMapRepository(NetworkUtil.provideKakaoAPI(KakaoAPI::class.java))
+        MapViewModel(GpsEnabledUseCase(locationRepository), GetLocationUseCase(locationRepository), LoadUserUseCase(userRepository), PredictUseCase(predictRepository), GetStoresByKeywordUseCase(mapRepository))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +84,7 @@ class MapActivity : AppCompatActivity() {
         setContentView(view.root)
 
         initView(view)
-        initObserver()
+        initObserver(view)
     }
 
     // 만약 화면 회전, 홈화면등과 같이 중단되는 사유가 있을경우 dialog 취소
@@ -93,31 +113,51 @@ class MapActivity : AppCompatActivity() {
                 viewModel.predict(result.selections)
             }
         }
+
+        // 리사이클러뷰 초기화
+        bind.stores.apply {
+            storeAdapter = StoreAdapter()
+            adapter = storeAdapter
+            layoutManager = LinearLayoutManager(this@MapActivity)
+        }
+
+        // 드로워 초기화
+        bottomSheetBehavior = BottomSheetBehavior.from(bind.bottomDrawer)
     }
 
     // 내위치 표시하는 점 초기화
     private fun initLabel() {
-        if (kakaoMap == null)
-            return
-
-        val layer = kakaoMap!!.labelManager?.layer
-        if (layer == null) {
-            // 레이어를 가져올 수 없는 경우
-            Log.w(TAG, "Can't get label layer")
-            notifyMessage(R.string.can_not_display_current_location)
-            return
-        }
-
         val currentPosition = kakaoMap!!.getCenterPositionOrElse(LatLng.from(35.0, 127.0)) // 현재 카카오맵 중심 좌표. 못가져오는경우 대한민국 좌표
         // 라벨 초기화
         val labelOptions = LabelOptions.from("centerLabel", currentPosition).apply {
             setStyles(LabelStyle.from(R.drawable.gps_my_position).setAnchorPoint(0.5f, 0.5f))
             rank = 1
         }
-        centerLabel = layer.addLabel(labelOptions) // 라벨 추가
+        val insertedLabel = addLabel(labelOptions)
+        if (insertedLabel == null)
+            notifyMessage(R.string.can_not_display_current_location)
+        else
+            centerLabel = insertedLabel
     }
 
-    private fun initObserver() {
+    /**
+     * 라벨 추가하는 메소드
+     * @return 성공한경우 추가된 라벨, 실패한경우 null
+     */
+    private fun addLabel(labelOptions: LabelOptions) : Label? {
+        if (kakaoMap == null)
+            return null
+
+        val layer = kakaoMap!!.labelManager?.layer
+        if (layer == null) {
+            // 레이어를 가져올 수 없는 경우
+            Log.w(TAG, "Can't get label layer")
+            return null
+        }
+        return layer.addLabel(labelOptions) // 라벨 추가
+    }
+
+    private fun initObserver(view : LayoutMapBinding) {
         // gps 정보 로드시
         viewModel.locationLiveData.observe(this) { location ->
             // 카카오맵이 로드되지 않은경우는 리턴
@@ -155,8 +195,11 @@ class MapActivity : AppCompatActivity() {
         // 예측 성공시
         viewModel.predictLiveData.observe(this) { event ->
             event.getContent()?.let { menus ->
-                ResultDialog.show(ResultDialogInput(menus), supportFragmentManager, this) {
-                    notifyMessage(it) // todo
+                ResultDialog.show(ResultDialogInput(menus), supportFragmentManager, this) { keyword ->
+                    if (kakaoMap == null)
+                        return@show
+                    val latLng : LatLng = kakaoMap!!.getCenterPositionOrElse(LatLng.from(35.0, 127.0)) // 카카오맵의 중심 좌표 가져오기
+                    viewModel.findStores(latLng.longitude, latLng.latitude, keyword)
                 }
             }
         }
@@ -168,6 +211,53 @@ class MapActivity : AppCompatActivity() {
             }
 
         }
+
+        viewModel.storeLiveData.observe(this) {
+            // 가게 목록이 없는경우 - 없다고 나타내기
+            if (it.isEmpty()) {
+                view.noneData.visibility = View.VISIBLE
+                return@observe
+            }
+            // 가게 목록이 있는경우
+            view.noneData.visibility = View.INVISIBLE
+            createLocationMarkers(it) // 마커 추가
+            storeAdapter.update(it) // 리사이클러뷰 업데이트
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED // 확장
+        }
+
+        // 카카오맵 api 호출 오류 notify
+        viewModel.storeNetworkErrorLiveData.observe(this) {
+            it.getContent()?.let {
+                notifyMessage(R.string.kakao_map_stores_api_error)
+            }
+        }
+    }
+
+    private fun createLocationMarkers(stores : List<Store>) {
+        if (kakaoMap == null) {
+            notifyMessage(R.string.map_load_error)
+            return
+        }
+
+        // 기존 마커 제거
+        markers.forEach { it.remove() }
+
+        val storeMarkers = stores.mapNotNull { store ->
+            val labelOptions = LabelOptions.from(LatLng.from(store.latitude, store.longitude)).apply {
+                // 스타일 설정
+                setStyles(
+                    LabelStyle.from(R.drawable.marker_image)
+                        .setAnchorPoint(0.5f, 0.5f)
+                        .setTextStyles(LabelTextStyle.from(25, R.color.black)))
+                // 가게 이름 설정
+                setTexts(store.name)
+                rank = 1
+            }
+            addLabel(labelOptions) // 지도에 라벨 추가
+        }
+        markers.addAll(storeMarkers)
+
+
     }
 
 
@@ -199,6 +289,75 @@ class MapActivity : AppCompatActivity() {
             viewModel.loadLocation()
         }
 
+    }
+
+    /**
+     * 가게 정보 표시하기 위한 어댑터
+     */
+    private inner class StoreAdapter : RecyclerView.Adapter<StoreViewHolder>() {
+
+        // 내부에 표시될 가게 정보
+        private val stores : MutableList<Store> = mutableListOf()
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoreViewHolder {
+            val bind : StoreItemBinding = StoreItemBinding.inflate(layoutInflater, parent, false)
+            return StoreViewHolder(bind)
+        }
+
+        override fun getItemCount(): Int {
+            return stores.size
+        }
+
+        override fun onBindViewHolder(holder: StoreViewHolder, position: Int) {
+            holder.bind(stores[position])
+        }
+
+        fun update(store : List<Store>) {
+            this.stores.apply {
+                clear()
+                addAll(store)
+                notifyDataSetChanged()
+            }
+        }
+
+    }
+
+    /**
+     * 각 가게 정보를 나타내는 뷰홀더
+     */
+    private inner class StoreViewHolder(private val bind : StoreItemBinding) : RecyclerView.ViewHolder(bind.root) {
+
+        // 각 홀더마다 갖고 있는 가게 정보 - 초기화됨
+        lateinit var holderStore : Store
+
+        // 각 가게 정보 업데이트
+        fun bind(store : Store) {
+            bind.name.text = store.name
+            bind.distance.text = parseDistance(store.distance)
+            bind.address.text = store.address
+            if (store.phone.isNotEmpty())
+                bind.phone.text = store.phone
+            holderStore = store // 초기화
+            // 뷰 클릭시
+            bind.storeItem.setThrottleClickListener(this::onViewClick)
+        }
+
+        // 거리 변환 함수 - m는 그냥 표시, km는 점단위로 변환
+        fun parseDistance(distance : Double) : String {
+            return if (distance < 1000)
+                getString(R.string.distance_meter, distance.toInt())
+            else {
+                val km = (distance / 1000).toInt() // 2300m -> 2km
+                val meter = ((distance - (1000 * km)) / 100).toInt() // 2300m -> (2300 - 2000) / 100 -> 0.3 m
+                getString(R.string.distance_kilometer, "$km.$meter")
+            }
+        }
+
+        fun onViewClick(view : View) {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED // 접기
+            val cameraUpdate = CameraUpdateFactory.newCenterPosition(LatLng.from(holderStore.latitude, holderStore.longitude))
+            kakaoMap?.moveCamera(cameraUpdate)
+        }
     }
 }
 

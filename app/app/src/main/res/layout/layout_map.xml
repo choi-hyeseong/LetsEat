@@ -152,6 +152,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline6"/>
         <TextView
+            android:id="@+id/none_data"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"

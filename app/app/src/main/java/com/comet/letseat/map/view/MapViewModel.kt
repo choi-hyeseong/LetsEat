@@ -9,6 +9,8 @@ import com.comet.letseat.common.livedata.Event
 import com.comet.letseat.map.gps.model.UserLocation
 import com.comet.letseat.map.gps.usecase.GetLocationUseCase
 import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
+import com.comet.letseat.map.kakao.model.Store
+import com.comet.letseat.map.kakao.usecase.GetStoresByKeywordUseCase
 import com.comet.letseat.map.view.type.GPSErrorType
 import com.comet.letseat.user.local.model.UserData
 import com.comet.letseat.user.local.usecase.LoadUserUseCase
@@ -25,40 +27,46 @@ import kotlinx.coroutines.launch
 class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
                    private val getLocationUseCase: GetLocationUseCase,
                    private val loadUserUseCase: LoadUserUseCase,
-                   private val predictUseCase: PredictUseCase) : ViewModel() {
+                   private val predictUseCase: PredictUseCase,
+                   private val getStoresByKeywordUseCase: GetStoresByKeywordUseCase) : ViewModel() {
 
 
-    private var cachedUser : UserData? = null // 기존에 예측할때 필요한 유저 정보. 캐시시켜두고 여러번 사용할때 불러와서 사용하기
+    private var cachedUser: UserData? = null // 기존에 예측할때 필요한 유저 정보. 캐시시켜두고 여러번 사용할때 불러와서 사용하기
 
     // 액티비티에서 접근하는 LiveData. Mutable 하지 않게 제공
     val locationLiveData: LiveData<UserLocation>
         get() = _userLocationLiveData // get property이용해서 mutable한 livedata 제공
-
-    // 실질적으로 내부에서 관리되는 LiveData. Mutable함
     private val _userLocationLiveData: MutableLiveData<UserLocation> = MutableLiveData() // lazy하게 load Location 걸었더니 kotlin property get이랑 겹쳐서 터짐..
 
     // 유저에게 gps 로드 요청시 결과값 나타낼 liveData. Event써서 1회성 notify만 하게
     val gpsResponseErrorLiveData: LiveData<Event<GPSErrorType>>
         get() = _gpsErrorLiveData
-
     private val _gpsErrorLiveData: MutableLiveData<Event<GPSErrorType>> = MutableLiveData()
 
     // 유저의 네트워크 요청 로딩 기다리기 위한 livedata - 1회성 팝업
-    val loadingLiveData : LiveData<Event<Boolean>>
+    val loadingLiveData: LiveData<Event<Boolean>>
         get() = _networkLoadingLiveData
-    private val _networkLoadingLiveData : MutableLiveData<Event<Boolean>> = MutableLiveData()
+    private val _networkLoadingLiveData: MutableLiveData<Event<Boolean>> = MutableLiveData()
 
     // 메뉴 추천 네트워크 요청 오류 알려주기 위한 liveData
-    val predictNetworkErrorLiveData : LiveData<Event<NetworkErrorType>>
+    val predictNetworkErrorLiveData: LiveData<Event<NetworkErrorType>>
         get() = _predictNetworkError
-    private val _predictNetworkError : MutableLiveData<Event<NetworkErrorType>> = MutableLiveData()
+    private val _predictNetworkError: MutableLiveData<Event<NetworkErrorType>> = MutableLiveData()
 
-    val predictLiveData : LiveData<Event<List<String>>>
+    // 메뉴 추천 결과 반환용
+    val predictLiveData: LiveData<Event<List<String>>>
         get() = _predictResponseData
-    private val _predictResponseData : MutableLiveData<Event<List<String>>> = MutableLiveData()
+    private val _predictResponseData: MutableLiveData<Event<List<String>>> = MutableLiveData()
 
+    // 가게 검색 api 결과 응답용
+    val storeNetworkErrorLiveData: LiveData<Event<NetworkErrorType>>
+        get() = _predictStoreNetworkError
+    private val _predictStoreNetworkError: MutableLiveData<Event<NetworkErrorType>> = MutableLiveData()
 
-
+    // 가게목록 liveData
+    val storeLiveData : LiveData<List<Store>>
+        get() = _localStoreLiveData
+    private val _localStoreLiveData : MutableLiveData<List<Store>> = MutableLiveData()
 
     // gps 정보 불러오는 메소드
     fun loadLocation() {
@@ -81,13 +89,13 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
         }
     }
 
-    fun predict(categories : List<String>) {
+    fun predict(categories: List<String>) {
         _networkLoadingLiveData.value = Event(true) // 로딩 보여주기
         // 비동기 처리
         CoroutineScope(Dispatchers.IO).launch {
             // 캐시된 유저가 없는경우
             if (cachedUser == null)
-                // 유저 로드
+            // 유저 로드
                 cachedUser = loadUserUseCase()
             predictUseCase(cachedUser!!.uuid, categories).onSuccess {
                 _predictResponseData.postValue(Event(data.menus))
@@ -98,7 +106,20 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
                 _predictNetworkError.postValue(Event(NetworkErrorType.EXCEPTION))
                 Log.e(TAG, "encountered predict exception", exception)
             }
-            _networkLoadingLiveData.postValue( Event(false)) //로딩 끝내기
+            _networkLoadingLiveData.postValue(Event(false)) //로딩 끝내기
+        }
+    }
+
+    // 키워드로 가게를 찾는 메소드
+    fun findStores(x : Double, y : Double, keyword : String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            getStoresByKeywordUseCase(keyword, x.toString(), y.toString()).onSuccess {
+                _localStoreLiveData.postValue(it)
+                Log.e(TAG, it.toString())
+            }.onFailure {
+                Log.e(TAG, it.message, it)
+                _predictStoreNetworkError.postValue(Event(NetworkErrorType.ERROR))
+            }
         }
     }
 
