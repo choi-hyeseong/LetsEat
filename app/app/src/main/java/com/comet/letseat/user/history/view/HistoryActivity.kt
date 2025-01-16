@@ -115,7 +115,7 @@ class HistoryActivity : AppCompatActivity() {
             val date = Date(history.timeStamp) //날짜 초기화
             view.date.text = getString(R.string.date_format, date.toDateString()) // 날짜 할당
             view.time.text = getString(R.string.time_format, date.toTimeString()) // 시간 할당
-            view.result.text = getString(R.string.recommend_result, history.response.size)
+            view.result.text = getString(R.string.recommend_result, history.menus?.size) // 비어 있을 수 있음
             view.storeItem.setThrottleClickListener {
                 HistoryDetailDialog.show(history, supportFragmentManager) // 상세 다이얼로그 보여주기
             }

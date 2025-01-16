@@ -11,6 +11,6 @@ import retrofit2.http.POST
  */
 interface PredictAPI {
 
-    @POST("/predict")
+    @POST("recommend")
     suspend fun predict(@Body request : PredictRequest) : ApiResponse<PredictResponse>
 }

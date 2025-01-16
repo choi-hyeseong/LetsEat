@@ -45,7 +45,7 @@ class RetrofitRemoteUserRepositoryTest {
     fun testDeleteUserSuccess() = runTest {
         //파라미터 검증
         val uuid = UUID.randomUUID() // 입력될 uuid
-        val uuidCapture : CapturingSlot<UUID> = CapturingSlot()
+        val uuidCapture : CapturingSlot<UserRequest> = CapturingSlot()
 
         val response = DeleteResponse(true) //성공한 응답 결과 반환
         coEvery { userAPI.delete(capture(uuidCapture)) } returns ApiResponse.of { Response.success(response) } // 캡처 및 성공 결과 반환
@@ -55,7 +55,7 @@ class RetrofitRemoteUserRepositoryTest {
         val result = repository.delete(uuid)
         // 검증
         assertTrue(result) // 성공
-        assertEquals(uuid, uuidCapture.captured)  // 캡처된 파라미터 동일여부
+        assertEquals(uuid, uuidCapture.captured.uuid)  // 캡처된 파라미터 동일여부
     }
 
     // retrofit 호출 오류로 인해 getOrNull에서 null이 반환된경우

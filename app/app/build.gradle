@@ -8,6 +8,7 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 def kakao_apiKey = properties.getProperty('kakao.api_key') // get kakao api key
 def kakao_apiWebKey = properties.getProperty('kakao.web_api_key')
+def server_url = properties.getProperty('server.url')
 
 android {
     namespace 'com.comet.letseat'
@@ -25,6 +26,7 @@ android {
 
         buildConfigField "String", "API_KEY", "\"" + kakao_apiKey + "\"" // sdk init 용. local properties에는 따옴표가 없기때문에 붙여줌
         buildConfigField "String", "WEB_API_KEY", kakao_apiWebKey // rest 요청에 필요한 web api key
+        buildConfigField "String", "SERVER_URL", server_url // server url
 
         // dlopen failed: library "libK3fAndroid.so" not found 해결용
         ndk {

@@ -45,9 +45,9 @@ class HistoryDetailDialog : AbstractDialog<DialogHistoryBinding>() {
             bind.dateTime.text = getString(R.string.date_format, date.toDateString())
             bind.convertTime.text = getString(R.string.time_format, date.toTimeString())
             bind.uuid.text = it.uuid.toString()
-            bind.category.text = it.category.toString()
+            bind.category.text = it.categories.toString()
             bind.statusCode.text = it.statusCode
-            bind.recommend.text = it.response.toString()
+            bind.recommend.text = it.menus?.toString()
         }
 
         bind.close.setOnClickListener {

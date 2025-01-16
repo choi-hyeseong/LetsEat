@@ -11,7 +11,7 @@ import java.util.UUID
 class RetrofitRemoteUserRepository(private val userAPI: UserAPI) : RemoteUserRepository {
 
     override suspend fun delete(uuid: UUID): Boolean {
-        val result = userAPI.delete(uuid).getOrNull()
+        val result = userAPI.delete(UserRequest(uuid)).getOrNull()
         return if (result == null) // api 호출 실패시
             false
         else
