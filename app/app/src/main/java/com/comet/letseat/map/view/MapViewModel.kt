@@ -23,7 +23,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-// 지도 클래스를 관리하는 VM
+/**
+ * 지도 정보를 관리하는 뷰모델
+ * @property gpsEnabledUseCase GPS의 활성화 여부를 반환하는 유스케이스
+ * @property getLocationUseCase GPS를 이용해 유저 위치를 반환하는 유스케이스
+ * @property loadUserUseCase 유저 정보를 로드하는 유스케이스
+ * @property predictUseCase 카테고리를 기반으로 메뉴를 추천하는 유스케이스
+ * @property getStoresByKeywordUseCase 키워드를 기반으로 가게를 찾는 유스케이스
+ */
 class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
                    private val getLocationUseCase: GetLocationUseCase,
                    private val loadUserUseCase: LoadUserUseCase,
@@ -89,6 +96,10 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
         }
     }
 
+    /**
+     * 카테고리를 기반으로 추천하는 함수
+     * @param categories 검색할 카테고리
+     */
     fun predict(categories: List<String>) {
         _networkLoadingLiveData.value = Event(true) // 로딩 보여주기
         // 비동기 처리
@@ -100,7 +111,7 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
             predictUseCase(cachedUser!!.uuid, categories).onSuccess {
                 _predictResponseData.postValue(Event(data.menus))
             }.onError {
-                _predictNetworkError.postValue(Event(NetworkErrorType.EXCEPTION))
+                _predictNetworkError.postValue(Event(NetworkErrorType.ERROR))
                 Log.e(TAG, "encountered predict error : ${errorBody?.string()}")
             }.onException {
                 _predictNetworkError.postValue(Event(NetworkErrorType.EXCEPTION))
@@ -110,12 +121,16 @@ class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
         }
     }
 
-    // 키워드로 가게를 찾는 메소드
+    /**
+     * 키워드로 가게를 찾는 메소드
+     * @param x 지도의 경도 (longitude)
+     * @param y 지도의 위도 (latitude)
+     * @param keyword 검색할 키워드
+     */
     fun findStores(x : Double, y : Double, keyword : String) {
         CoroutineScope(Dispatchers.IO).launch {
             getStoresByKeywordUseCase(keyword, x, y).onSuccess {
                 _localStoreLiveData.postValue(it)
-                Log.e(TAG, it.toString())
             }.onFailure {
                 Log.e(TAG, it.message, it)
                 _predictStoreNetworkError.postValue(Event(NetworkErrorType.ERROR))

@@ -5,7 +5,15 @@ package com.comet.letseat.common.view.state
  * @property data 담고 있는 데이터입니다.
  * @property isChecked 현재 해당 뷰가 체크되어 있는지 나타내는 값입니다.
  */
-data class ViewCheckState(val data : String, var isChecked : Boolean)
+data class ViewCheckState(val data : String, var isChecked : Boolean) {
+
+    /**
+     * Equals는 data값만 비교함
+     */
+    override fun equals(other: Any?): Boolean {
+        return other is ViewCheckState && data == other.data
+    }
+}
 
 /**
  * List<String>으로 된 단순 값을 상태 클래스로 변환하는 확장함수

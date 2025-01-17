@@ -28,6 +28,7 @@
     <string name="validation_error">검증 과정에서 문제가 발생했습니다.</string>
     <string name="validation_empty">입력란이 비어있습니다.</string>
     <string name="validation_too_long">카테고리가 너무 깁니다. 짧게 작성해주세요.</string>
+    <string name="validation_category_duplicate">이미 추가된 카테고리입니다. 다른 카테고리를 추가해주세요.</string>
 
     <string name="ai_thinking_hard">AI가 열심히 생각중..</string>
     <string name="ai_load_fail">AI가 메뉴를 찾지 못햇어요..</string>

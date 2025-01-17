@@ -20,8 +20,16 @@ class SettingViewModel(private val loadUserUseCase: LoadUserUseCase, private val
 
     fun deleteUser() {
         CoroutineScope(Dispatchers.IO).launch {
-            // 사용자 정보 가져오기
-            val uuid = loadUserUseCase().uuid
+            // 사용자 정보 안전하게 가져오기
+            val uuid = kotlin.runCatching {
+                loadUserUseCase().uuid
+            }.getOrNull()
+
+            if (uuid == null) {
+                _innerResponse.postValue(false)
+                return@launch
+            }
+
             // 원격지 정보 삭제하기
             val isSuccess = remoteDeleteUserUseCase(uuid)
 

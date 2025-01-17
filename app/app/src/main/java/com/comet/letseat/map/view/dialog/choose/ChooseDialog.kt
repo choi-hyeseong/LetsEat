@@ -88,6 +88,7 @@ class ChooseDialog : AbstractDialog<DialogChooseBinding>() {
                 when(event) {
                     ChooseValidErrorType.EMPTY -> notifyMessage(R.string.validation_empty)
                     ChooseValidErrorType.LONG -> notifyMessage(R.string.validation_too_long)
+                    ChooseValidErrorType.DUPLICATE -> notifyMessage(R.string.validation_category_duplicate)
                 }
 
             }

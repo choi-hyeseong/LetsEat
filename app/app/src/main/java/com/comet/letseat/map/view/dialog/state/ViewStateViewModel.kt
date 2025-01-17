@@ -35,19 +35,27 @@ abstract class ViewStateViewModel : ViewModel() {
     /**
      * 동적으로 체크박스 추가 및 LiveData notify
      * @param state 추가할 체크박스의 정보입니다.
+     * @return 추가가 성공한경우 true, 실패한경우 false를 반환합니다. 중복된 이름의 데이터일경우 실패합니다.
      */
-    fun addState(state : ViewCheckState) {
+    fun addState(state : ViewCheckState) : Boolean {
+        if (checkSelection.contains(state)) // 이름이 같은 데이터가 있을경우
+            return false
         checkSelection.add(state)
         _internalSelectionLiveData.value = checkSelection
+        return true
     }
 
     /**
      * 동적으로 체크박스 여러개 추가 및 LiveData notify
      * @param states 체크박스의 정보입니다.
+     * @return 삽입 성공한 리스트를 반환합니다.
      */
-    fun addAllState(states : List<ViewCheckState>) {
-        checkSelection.addAll(states)
+    fun addAllState(states : List<ViewCheckState>) : List<ViewCheckState> {
+        // 포함되지 않은 데이터만 있을때
+        val uniqueState = states.filter { !checkSelection.contains(it) }
+        checkSelection.addAll(uniqueState)
         _internalSelectionLiveData.value = checkSelection
+        return uniqueState
     }
 
     /**

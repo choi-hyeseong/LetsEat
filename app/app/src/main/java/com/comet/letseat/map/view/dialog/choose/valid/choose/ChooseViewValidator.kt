@@ -16,7 +16,7 @@ class ChooseViewValidator(private val chooseInputValidator: ChooseInputValidator
         val editText = view.input
         val input = editText.text.toString()
 
-        val result = chooseInputValidator.valid(input)
+        val result = chooseInputValidator.valid(mutableListOf(), input)
         // 성공한경우 리턴
         if (result.isSuccess)
             return true
@@ -32,6 +32,7 @@ class ChooseViewValidator(private val chooseInputValidator: ChooseInputValidator
         when (error.first().error) {
             ChooseValidErrorType.EMPTY -> editText.error = context.getString(R.string.validation_empty)
             ChooseValidErrorType.LONG -> editText.error = context.getString(R.string.validation_too_long)
+            ChooseValidErrorType.DUPLICATE -> editText.error = context.getString(R.string.validation_category_duplicate)
         }
         return false
 
