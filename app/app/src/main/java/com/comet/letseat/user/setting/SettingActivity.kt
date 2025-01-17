@@ -44,6 +44,7 @@ class SettingActivity : AppCompatActivity() {
                 .setNegativeButton(R.string.close) { dialog, _ -> dialog.dismiss() } // 종료
                 .create()
                 .show()
+            // 삭제 요청걸고 뒤로 가기 누르는 경우? - 서버 요청은 전송 되었으니 강제로 빠져나가는경우 유저 정보를 먼저 삭제 or api 요청 결과 올때까지 기다리지 않고 바로 삭제 후 종료 방법도 있음.
         }
 
         view.aiHistory.setOnClickListener {

@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.time.Duration
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -25,6 +26,13 @@ class NetworkModule {
         private val KAKAO_BASE_URL = "https://dapi.kakao.com/v2/local/"
     }
 
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class KakaoClientQualifier // 카카오 okhttp
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class LambdaClientQualifier // 람다 okhttp
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
@@ -36,15 +44,24 @@ class NetworkModule {
 
 
     @Provides
+    @KakaoClientQualifier
     @Singleton
     fun provideKakaoClient() : OkHttpClient {
         return OkHttpClient.Builder().addInterceptor(NetworkInterceptor()).build()
     }
 
     @Provides
+    @LambdaClientQualifier
+    @Singleton
+    fun provideLambdaClient() : OkHttpClient {
+        return OkHttpClient.Builder().readTimeout(Duration.ofMinutes(1)).connectTimeout(Duration.ofMinutes(1)).build()
+    }
+
+
+    @Provides
     @Singleton
     @KakaoQualifier
-    fun provideKakaoRetrofit(client : OkHttpClient) : Retrofit {
+    fun provideKakaoRetrofit(@KakaoClientQualifier client : OkHttpClient) : Retrofit {
         return Retrofit.Builder()
             .baseUrl(KAKAO_BASE_URL)
             .client(client)
@@ -56,8 +73,9 @@ class NetworkModule {
     @Provides
     @Singleton
     @LambdaQualifier
-    fun provideLambdaRetrofit() : Retrofit {
+    fun provideLambdaRetrofit(@LambdaClientQualifier client : OkHttpClient) : Retrofit {
         return Retrofit.Builder()
+            .client(client)
             .baseUrl(BuildConfig.SERVER_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
