@@ -1,9 +1,7 @@
 package com.comet.letseat.map.view.dialog.result
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.comet.letseat.TAG
 import com.comet.letseat.common.livedata.Event
 import com.comet.letseat.common.view.state.ViewCheckState
 import com.comet.letseat.common.view.state.convertToStringList
@@ -35,8 +33,7 @@ class ResultDialogViewModel(private val validator: ResultValidator) : ViewStateV
         // 검증 실패시
         if (!validateResult.isSuccess) {
             val error = validateResult.error
-            if (error.isEmpty()) Log.w(TAG, "Result Validation is failed. But, error result is empty.")
-            else _userSelectionError.value = Event(error.first().error)
+            _userSelectionError.value = Event(error.first().error)
             return
         }
         // 1개만 선택됐으므로 맨 처음 item 가져옴

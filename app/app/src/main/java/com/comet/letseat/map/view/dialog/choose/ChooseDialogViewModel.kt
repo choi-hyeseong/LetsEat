@@ -1,9 +1,7 @@
 package com.comet.letseat.map.view.dialog.choose
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.comet.letseat.TAG
 import com.comet.letseat.common.livedata.Event
 import com.comet.letseat.common.view.state.ViewCheckState
 import com.comet.letseat.common.view.state.convertToStringList
@@ -55,12 +53,11 @@ class ChooseDialogViewModel(
      */
     fun addCategory(category: String) {
         // 검증
-        val validateResult = chooseInputValidator.valid(category)
+        val validateResult = chooseInputValidator.valid(checkSelection, category)
         // 검증 실패시
         if (!validateResult.isSuccess) {
             val error = validateResult.error
-            if (error.isEmpty()) Log.w(TAG, "Validation is failed. But, error result is empty.")
-            else _userErrorNotifyLiveData.value = Event(error.first().error)
+            _userErrorNotifyLiveData.value = Event(error.first().error)
             return
         }
         // 선택지 추가 및 알림
@@ -76,8 +73,7 @@ class ChooseDialogViewModel(
         // 검증 실패시
         if (!validateResult.isSuccess) {
             val error = validateResult.error
-            if (error.isEmpty()) Log.w(TAG, "Predict Validation is failed. But, error result is empty.")
-            else _userCheckError.value = Event(error.first().error)
+            _userCheckError.value = Event(error.first().error)
             return
         }
         _userResultLiveData.value = Event(checkSelection.filter { it.isChecked }.convertToStringList())
