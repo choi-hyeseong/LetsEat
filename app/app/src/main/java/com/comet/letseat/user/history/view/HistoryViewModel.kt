@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.comet.letseat.TAG
 import com.comet.letseat.common.livedata.Event
 import com.comet.letseat.user.local.usecase.LoadUserUseCase
@@ -14,7 +15,6 @@ import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
 import com.skydoves.sandwich.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -38,7 +38,7 @@ class HistoryViewModel @Inject constructor(private val loadUserUseCase: LoadUser
 
     // 유저 히스토리 로드
     fun loadHistory() {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch(Dispatchers.IO) {
             if (cachedUser == null)
                 cachedUser = loadUserUseCase().uuid
             getUserHistoryUseCase(cachedUser!!).onSuccess {

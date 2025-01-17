@@ -3,11 +3,11 @@ package com.comet.letseat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.comet.letseat.user.local.model.UserData
 import com.comet.letseat.user.local.usecase.ExistUserUseCase
 import com.comet.letseat.user.local.usecase.SaveUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -27,7 +27,7 @@ class MainViewModel @Inject constructor(private val existUserUseCase: ExistUserU
     private val _initLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     fun initUserData() {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch(Dispatchers.IO) {
             if (!existUserUseCase())
                 saveUserUseCase(UserData(UUID.randomUUID())) //random uuid save
             _initLiveData.postValue(true)

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.comet.letseat.TAG
 import com.comet.letseat.common.livedata.Event
 import com.comet.letseat.map.gps.model.UserLocation
@@ -20,7 +21,6 @@ import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
 import com.skydoves.sandwich.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -106,7 +106,7 @@ class MapViewModel @Inject constructor(private val gpsEnabledUseCase: GpsEnabled
     fun predict(categories: List<String>) {
         _networkLoadingLiveData.value = Event(true) // 로딩 보여주기
         // 비동기 처리
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch(Dispatchers.IO) {
             // 캐시된 유저가 없는경우
             if (cachedUser == null)
             // 유저 로드
@@ -131,7 +131,7 @@ class MapViewModel @Inject constructor(private val gpsEnabledUseCase: GpsEnabled
      * @param keyword 검색할 키워드
      */
     fun findStores(x : Double, y : Double, keyword : String) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getStoresByKeywordUseCase(keyword, x, y).onSuccess {
                 _localStoreLiveData.postValue(it)
             }.onFailure {
