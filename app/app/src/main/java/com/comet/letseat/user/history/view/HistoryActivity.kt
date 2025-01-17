@@ -3,39 +3,30 @@ package com.comet.letseat.user.history.view
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.comet.letseat.R
-import com.comet.letseat.common.storage.PreferenceDataStore
 import com.comet.letseat.common.toDateString
 import com.comet.letseat.common.toTimeString
-import com.comet.letseat.common.util.NetworkUtil
 import com.comet.letseat.common.view.setThrottleClickListener
 import com.comet.letseat.databinding.HistoryItemBinding
 import com.comet.letseat.databinding.LayoutHistoryBinding
 import com.comet.letseat.notifyMessage
 import com.comet.letseat.user.history.view.dialog.HistoryDetailDialog
-import com.comet.letseat.user.local.repository.PreferenceUserRepository
-import com.comet.letseat.user.local.usecase.LoadUserUseCase
 import com.comet.letseat.user.remote.type.NetworkErrorType
-import com.comet.letseat.user.remote.user.api.UserAPI
 import com.comet.letseat.user.remote.user.model.UserHistory
-import com.comet.letseat.user.remote.user.repository.RetrofitRemoteUserRepository
-import com.comet.letseat.user.remote.user.usecase.GetUserHistoryUseCase
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
 
 // ai 메뉴 이력 확인 액티비티. 툴바 사용하는 액티비티들은 abstract로 뽑아서 합쳐도 괜찮을듯.
+@AndroidEntryPoint
 class HistoryActivity : AppCompatActivity() {
 
     private lateinit var historyAdapter: HistoryAdapter
 
-    // todo hilt
-    private val viewModel : HistoryViewModel by lazy {
-        val repo = PreferenceUserRepository(PreferenceDataStore(this))
-        val remoteRepo = RetrofitRemoteUserRepository(NetworkUtil.provideAPI(UserAPI::class.java))
-        HistoryViewModel(LoadUserUseCase(repo), GetUserHistoryUseCase(remoteRepo))
-    }
+    private val viewModel : HistoryViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

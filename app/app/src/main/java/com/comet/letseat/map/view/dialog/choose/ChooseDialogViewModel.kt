@@ -11,11 +11,14 @@ import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseValidErrorTyp
 import com.comet.letseat.map.view.dialog.choose.valid.predict.PredictValidErrorType
 import com.comet.letseat.map.view.dialog.choose.valid.predict.PredictValidator
 import com.comet.letseat.map.view.dialog.state.ViewStateViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 /**
  * 기존 Map ViewModel이 너무 무거워져서 dialog fragment에서 사용할 수 있는 뷰모델 생성 - 선택 화면
  */
-class ChooseDialogViewModel(
+@HiltViewModel
+class ChooseDialogViewModel @Inject constructor(
         private val chooseInputValidator: ChooseInputValidator,
         private val predictValidator: PredictValidator
 ) : ViewStateViewModel() {
@@ -38,9 +41,9 @@ class ChooseDialogViewModel(
 
 
     // 최종 선택 결과 설정용 observer
-    val resultLiveData : LiveData<Event<List<String>>>
+    val resultLiveData: LiveData<Event<List<String>>>
         get() = _userResultLiveData
-    private val _userResultLiveData : MutableLiveData<Event<List<String>>> = MutableLiveData()
+    private val _userResultLiveData: MutableLiveData<Event<List<String>>> = MutableLiveData()
 
 
     override fun provideInitialSelection(): MutableList<ViewCheckState> {

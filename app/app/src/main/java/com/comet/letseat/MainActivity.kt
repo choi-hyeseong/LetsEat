@@ -5,24 +5,18 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.comet.letseat.common.storage.PreferenceDataStore
 import com.comet.letseat.map.view.MapActivity
-import com.comet.letseat.user.local.repository.PreferenceUserRepository
-import com.comet.letseat.user.local.usecase.ExistUserUseCase
-import com.comet.letseat.user.local.usecase.SaveUserUseCase
 import com.permissionx.guolindev.PermissionX
+import dagger.hilt.android.AndroidEntryPoint
 
 // 유저 정보 검증용 액티비티 - 뷰 따로 필요 없을 예정 -> 검증 끝나면 MapActivity로 이동
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-
-    // todo hilt inject
-    val viewModel : MainViewModel by lazy {
-        val userRepository = PreferenceUserRepository(PreferenceDataStore(this))
-        MainViewModel(ExistUserUseCase(userRepository), SaveUserUseCase(userRepository))
-    }
+    val viewModel : MainViewModel by viewModels()
 
     companion object {
         // permission constant - 13이후 manifest에서 펄미션 상수 사라짐

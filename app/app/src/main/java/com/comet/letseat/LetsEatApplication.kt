@@ -2,7 +2,9 @@ package com.comet.letseat
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class LetsEatApplication : Application() {
 
     override fun onCreate() {

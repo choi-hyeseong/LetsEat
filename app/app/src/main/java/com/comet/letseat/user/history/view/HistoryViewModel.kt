@@ -13,24 +13,28 @@ import com.comet.letseat.user.remote.user.usecase.GetUserHistoryUseCase
 import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
 import com.skydoves.sandwich.onSuccess
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
+import javax.inject.Inject
 
-class HistoryViewModel(private val loadUserUseCase: LoadUserUseCase, private val getUserHistoryUseCase: GetUserHistoryUseCase) : ViewModel() {
+@HiltViewModel
+class HistoryViewModel @Inject constructor(private val loadUserUseCase: LoadUserUseCase,
+                                           private val getUserHistoryUseCase: GetUserHistoryUseCase) : ViewModel() {
 
-    private var cachedUser : UUID? = null // 추후에 초기화될 캐시된 유저 정보
+    private var cachedUser: UUID? = null // 추후에 초기화될 캐시된 유저 정보
 
     // 유저 히스토리 liveData
-    val historyLiveData : LiveData<List<UserHistory>>
+    val historyLiveData: LiveData<List<UserHistory>>
         get() = _innerHistory
-    private val _innerHistory : MutableLiveData<List<UserHistory>> = MutableLiveData()
+    private val _innerHistory: MutableLiveData<List<UserHistory>> = MutableLiveData()
 
     // 에러 notify용
-    val errorLiveData : LiveData<Event<NetworkErrorType>>
+    val errorLiveData: LiveData<Event<NetworkErrorType>>
         get() = _innerError
-    private val _innerError : MutableLiveData<Event<NetworkErrorType>> = MutableLiveData()
+    private val _innerError: MutableLiveData<Event<NetworkErrorType>> = MutableLiveData()
 
     // 유저 히스토리 로드
     fun loadHistory() {

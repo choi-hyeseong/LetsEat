@@ -3,31 +3,21 @@ package com.comet.letseat.user.setting
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.comet.letseat.R
-import com.comet.letseat.common.storage.PreferenceDataStore
-import com.comet.letseat.common.util.NetworkUtil
 import com.comet.letseat.common.view.setThrottleClickListener
 import com.comet.letseat.databinding.LayoutSettingBinding
 import com.comet.letseat.notifyMessage
 import com.comet.letseat.user.history.view.HistoryActivity
-import com.comet.letseat.user.local.repository.PreferenceUserRepository
-import com.comet.letseat.user.local.usecase.DeleteUserUseCase
-import com.comet.letseat.user.local.usecase.LoadUserUseCase
-import com.comet.letseat.user.remote.user.api.UserAPI
-import com.comet.letseat.user.remote.user.repository.RetrofitRemoteUserRepository
-import com.comet.letseat.user.remote.user.usecase.RemoteDeleteUserUseCase
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.system.exitProcess
 
+@AndroidEntryPoint
 class SettingActivity : AppCompatActivity() {
 
-    // todo hilt
-    val viewModel : SettingViewModel by lazy {
-        val userRepository = PreferenceUserRepository(PreferenceDataStore(this))
-        val remoteRepository = RetrofitRemoteUserRepository(NetworkUtil.provideAPI(UserAPI::class.java))
-        SettingViewModel(LoadUserUseCase(userRepository), DeleteUserUseCase(userRepository), RemoteDeleteUserUseCase(remoteRepository))
-    }
+    val viewModel : SettingViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

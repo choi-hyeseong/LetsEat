@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import com.comet.letseat.R
@@ -12,14 +13,15 @@ import com.comet.letseat.common.dialog.AbstractDialog
 import com.comet.letseat.common.view.setThrottleClickListener
 import com.comet.letseat.databinding.DialogChooseBinding
 import com.comet.letseat.map.view.dialog.adapter.SelectionItemAdapter
-import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseInputValidator
 import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseValidErrorType
 import com.comet.letseat.map.view.dialog.choose.valid.choose.ChooseViewValidator
 import com.comet.letseat.map.view.dialog.choose.valid.predict.PredictValidErrorType
-import com.comet.letseat.map.view.dialog.choose.valid.predict.PredictValidator
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.Serializable
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class ChooseDialog : AbstractDialog<DialogChooseBinding>() {
 
     companion object {
@@ -46,9 +48,11 @@ class ChooseDialog : AbstractDialog<DialogChooseBinding>() {
     }
 
     private lateinit var itemAdapter : SelectionItemAdapter
-    // todo hilt - fragment는 생성자 없어야함.
-    private val validator = ChooseViewValidator(ChooseInputValidator())
-    private val chooseViewModel = ChooseDialogViewModel(ChooseInputValidator(), PredictValidator())
+
+    @Inject
+    lateinit var validator : ChooseViewValidator
+
+    private val chooseViewModel : ChooseDialogViewModel by viewModels()
 
     override fun provideBinding(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): DialogChooseBinding {
         return DialogChooseBinding.inflate(inflater, container, false)

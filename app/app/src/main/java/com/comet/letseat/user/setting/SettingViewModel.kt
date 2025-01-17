@@ -6,16 +6,21 @@ import androidx.lifecycle.ViewModel
 import com.comet.letseat.user.local.usecase.DeleteUserUseCase
 import com.comet.letseat.user.local.usecase.LoadUserUseCase
 import com.comet.letseat.user.remote.user.usecase.RemoteDeleteUserUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 // 유저 정보 삭제용 뷰모델
-class SettingViewModel(private val loadUserUseCase: LoadUserUseCase, private val deleteUserUseCase: DeleteUserUseCase, private val remoteDeleteUserUseCase: RemoteDeleteUserUseCase) : ViewModel() {
+@HiltViewModel
+class SettingViewModel @Inject constructor(private val loadUserUseCase: LoadUserUseCase,
+                                           private val deleteUserUseCase: DeleteUserUseCase,
+                                           private val remoteDeleteUserUseCase: RemoteDeleteUserUseCase) : ViewModel() {
 
-    val deleteResponseLiveData : LiveData<Boolean>
+    val deleteResponseLiveData: LiveData<Boolean>
         get() = _innerResponse
-    private val _innerResponse : MutableLiveData<Boolean> = MutableLiveData()
+    private val _innerResponse: MutableLiveData<Boolean> = MutableLiveData()
 
 
     fun deleteUser() {

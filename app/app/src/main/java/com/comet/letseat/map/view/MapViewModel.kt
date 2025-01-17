@@ -19,9 +19,11 @@ import com.comet.letseat.user.remote.type.NetworkErrorType
 import com.skydoves.sandwich.onError
 import com.skydoves.sandwich.onException
 import com.skydoves.sandwich.onSuccess
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * 지도 정보를 관리하는 뷰모델
@@ -31,7 +33,8 @@ import kotlinx.coroutines.launch
  * @property predictUseCase 카테고리를 기반으로 메뉴를 추천하는 유스케이스
  * @property getStoresByKeywordUseCase 키워드를 기반으로 가게를 찾는 유스케이스
  */
-class MapViewModel(private val gpsEnabledUseCase: GpsEnabledUseCase,
+@HiltViewModel
+class MapViewModel @Inject constructor(private val gpsEnabledUseCase: GpsEnabledUseCase,
                    private val getLocationUseCase: GetLocationUseCase,
                    private val loadUserUseCase: LoadUserUseCase,
                    private val predictUseCase: PredictUseCase,

@@ -9,8 +9,11 @@ import com.comet.letseat.common.view.state.toState
 import com.comet.letseat.map.view.dialog.result.valid.result.ResultValidErrorType
 import com.comet.letseat.map.view.dialog.result.valid.result.ResultValidator
 import com.comet.letseat.map.view.dialog.state.ViewStateViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ResultDialogViewModel(private val validator: ResultValidator) : ViewStateViewModel() {
+@HiltViewModel
+class ResultDialogViewModel @Inject constructor(private val validator: ResultValidator) : ViewStateViewModel() {
 
     // 유저 결과 선택 검증 오류 반환
     val userResultSelectionErrorLiveData: LiveData<Event<ResultValidErrorType>>

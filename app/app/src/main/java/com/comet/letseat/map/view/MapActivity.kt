@@ -5,25 +5,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.comet.letseat.BuildConfig
 import com.comet.letseat.R
 import com.comet.letseat.TAG
-import com.comet.letseat.common.storage.PreferenceDataStore
-import com.comet.letseat.common.util.NetworkUtil
 import com.comet.letseat.common.view.setThrottleClickListener
 import com.comet.letseat.databinding.LayoutMapBinding
 import com.comet.letseat.databinding.StoreItemBinding
-import com.comet.letseat.map.gps.dao.LocationDao
-import com.comet.letseat.map.gps.repository.NetworkLocationRepository
-import com.comet.letseat.map.gps.usecase.GetLocationUseCase
-import com.comet.letseat.map.gps.usecase.GpsEnabledUseCase
-import com.comet.letseat.map.kakao.api.KakaoAPI
 import com.comet.letseat.map.kakao.model.Store
-import com.comet.letseat.map.kakao.repoisotry.KakaoMapRepository
-import com.comet.letseat.map.kakao.usecase.GetStoresByKeywordUseCase
 import com.comet.letseat.map.view.dialog.FailDialog
 import com.comet.letseat.map.view.dialog.LoadingDialog
 import com.comet.letseat.map.view.dialog.choose.ChooseDialog
@@ -31,11 +23,6 @@ import com.comet.letseat.map.view.dialog.result.ResultDialog
 import com.comet.letseat.map.view.dialog.result.ResultDialogInput
 import com.comet.letseat.map.view.type.GPSErrorType
 import com.comet.letseat.notifyMessage
-import com.comet.letseat.user.local.repository.PreferenceUserRepository
-import com.comet.letseat.user.local.usecase.LoadUserUseCase
-import com.comet.letseat.user.remote.predict.PredictAPI
-import com.comet.letseat.user.remote.predict.repository.RemotePredictRepository
-import com.comet.letseat.user.remote.predict.usecase.PredictUseCase
 import com.comet.letseat.user.setting.SettingActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kakao.vectormap.KakaoMap
@@ -48,7 +35,9 @@ import com.kakao.vectormap.label.Label
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelTextStyle
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MapActivity : AppCompatActivity() {
 
     private var kakaoMap: KakaoMap? = null // 초기화된 카카오맵. null일경우 미초기화
@@ -64,15 +53,7 @@ class MapActivity : AppCompatActivity() {
     // 뷰에서 나타나는 하단 드로워 초기화
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
-    // TODO hilt
-    private val viewModel: MapViewModel by lazy {
-        val gpsDao = LocationDao(this)
-        val locationRepository = NetworkLocationRepository(gpsDao)
-        val userRepository = PreferenceUserRepository(PreferenceDataStore(this))
-        val predictRepository = RemotePredictRepository(NetworkUtil.provideAPI(PredictAPI::class.java))
-        val mapRepository = KakaoMapRepository(NetworkUtil.provideKakaoAPI(KakaoAPI::class.java))
-        MapViewModel(GpsEnabledUseCase(locationRepository), GetLocationUseCase(locationRepository), LoadUserUseCase(userRepository), PredictUseCase(predictRepository), GetStoresByKeywordUseCase(mapRepository))
-    }
+    private val viewModel: MapViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

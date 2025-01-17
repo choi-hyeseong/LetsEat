@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import com.comet.letseat.R
@@ -13,9 +14,10 @@ import com.comet.letseat.common.view.setThrottleClickListener
 import com.comet.letseat.databinding.DialogResultBinding
 import com.comet.letseat.map.view.dialog.adapter.SelectionItemAdapter
 import com.comet.letseat.map.view.dialog.result.valid.result.ResultValidErrorType
-import com.comet.letseat.map.view.dialog.result.valid.result.ResultValidator
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.Serializable
 
+@AndroidEntryPoint
 class ResultDialog : AbstractDialog<DialogResultBinding>() {
 
     companion object {
@@ -46,7 +48,7 @@ class ResultDialog : AbstractDialog<DialogResultBinding>() {
 
     }
 
-    private val dialogViewModel : ResultDialogViewModel = ResultDialogViewModel(ResultValidator())
+    private val dialogViewModel : ResultDialogViewModel by viewModels()
     private lateinit var resultAdapter : SelectionItemAdapter
 
     override fun onResume() {
